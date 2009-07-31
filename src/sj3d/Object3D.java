@@ -2,11 +2,13 @@ package sj3d;
 
 abstract class Object3D {
 
-	protected Matrix transform;
+	Matrix transform;
+	
 	protected float 
 		rotX, rotY, rotZ,
 		sclX, sclY, sclZ,
 		posX, posY, posZ;
+	
 	protected boolean rebuildFlag = false;
 	
 	public Object3D() {
@@ -17,7 +19,7 @@ abstract class Object3D {
 		
 	}
 	
-	public Matrix getMatrix() {
+	Matrix getMatrix() {
 		
 		if (!rebuildFlag) return transform;
 		rebuildFlag = false;

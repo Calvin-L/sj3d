@@ -3,11 +3,11 @@ package sj3d;
 public final class Vertex implements Cloneable {
 	
 	public final float x, y, z;
-	//public final float w = 1.0f;
-	public float projX, projY, projZ;
-	public Vector projN;
-	
 	public Vector n;
+	
+	float projX, projY, projZ;
+	Vector projN;
+	
 	
 	public Vertex() {
 		x = y = z = 0.0f;
