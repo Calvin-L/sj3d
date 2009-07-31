@@ -6,7 +6,6 @@ public final class Vertex implements Cloneable {
 	public Vector n;
 	
 	float projX, projY, projZ;
-	Vector projN;
 	
 	
 	public Vertex() {

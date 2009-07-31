@@ -30,7 +30,7 @@ final class Renderer {
 	private int mode; // shade mode
 	private Vertex a, b, c, tempVertex;
 	private Vector n; // Triangle normal; used in lighting calculation
-	private Vector projN; // Projected triangle normal; used in back-face culling
+	//private Vector projN; // Projected triangle normal; used in back-face culling
 	private UVCoord uva, uvb, uvc, tempUV;
 	private Model currentContainer;
 	private float ax, bx, cx;		// Projected position
@@ -54,8 +54,8 @@ final class Renderer {
 	// Settings
 	private final int width, height;
 	private final int halfwidth, halfheight;
-	private final float scl;
-	private float sclOverZ;
+	private final float sclX, sclY;
+	//private float sclOverZ;
 	private final RenderSettings settings;
 	final int ALPHA;
 	
@@ -85,7 +85,10 @@ final class Renderer {
 		halfwidth = width/2; halfheight = height/2;
 		
 		// Scale factor to make coordinates more natural
-		scl = (float)height / 2;
+		//scl = (float)height / 2;
+		final float FOV = 1.04719755f, d = 1.0f/((float)Math.tan(FOV));
+		sclX = (d / (width / height) + 1) * halfwidth;
+		sclY = (d + 1) * halfheight;
 		
 		//this.vertices = vertices;
 		this.pixels = pixels;
@@ -150,11 +153,11 @@ final class Renderer {
 		for (i = 0, l = object.numTriangles(); i < l; i++) {
 			t = object.getTriangle(i);
 			n = t.getNormal();
-			//cos = n.dot(camera.getForwardVector());
-			projN = camera.getMatrix().multiply(t.getNormal()); 
+			cos = n.dot(camera.getForwardVector());
+			//projN = camera.getMatrix().multiply(t.getNormal()); 
 			// back-face culling: only render one side of triangle
-			//if (cos <= 0) {
-			if (projN.z < 0) {
+			if (cos <= 0.001) {
+			//if (projN.z < 0) {
 				renderTriangle(t);
 				//count++;
 			}
@@ -182,10 +185,16 @@ final class Renderer {
 			
 			// Calculate position on screen & depth from camera
 			// This bit performs the transformation from orthographic to perspective
+			/*
 			sclOverZ = Math.abs(scl / v.z);
 			v0.projX = v.x * sclOverZ + halfwidth;
 			v0.projY = v.y * sclOverZ + halfheight;
 			v0.projZ = 1.0f/(v.z * scl);
+			*/
+			
+			v0.projX = v.x * sclX / v.z + halfwidth;
+			v0.projY = v.y * sclY / v.z + halfheight;
+			v0.projZ = 1.0f / v.z;
 			
 		}
 		

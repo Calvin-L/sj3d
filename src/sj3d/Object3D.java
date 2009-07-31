@@ -41,9 +41,9 @@ abstract class Object3D {
 	
 	public void scale(float sx, float sy, float sz) {
 		
-		sclX = sx;
-		sclY = sy;
-		sclZ = sz;
+		sclX *= sx;
+		sclY *= sy;
+		sclZ *= sz;
 		rebuildFlag = true;
 		
 	}
@@ -71,6 +71,15 @@ abstract class Object3D {
 		posX = x;
 		posY = y;
 		posZ = z;
+		rebuildFlag = true;
+		
+	}
+	
+	public void setScale(float x, float y, float z) {
+		
+		sclX = x;
+		sclY = y;
+		sclZ = z;
 		rebuildFlag = true;
 		
 	}
