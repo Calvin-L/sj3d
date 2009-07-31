@@ -30,7 +30,6 @@ final class Renderer {
 	private int mode; // shade mode
 	private Vertex a, b, c, tempVertex;
 	private Vector n; // Triangle normal; used in lighting calculation
-	//private Vector projN; // Projected triangle normal; used in back-face culling
 	private UVCoord uva, uvb, uvc, tempUV;
 	private Model currentContainer;
 	private float ax, bx, cx;		// Projected position
@@ -55,7 +54,6 @@ final class Renderer {
 	private final int width, height;
 	private final int halfwidth, halfheight;
 	private final float sclX, sclY;
-	//private float sclOverZ;
 	private final RenderSettings settings;
 	final int ALPHA;
 	
@@ -85,7 +83,6 @@ final class Renderer {
 		halfwidth = width/2; halfheight = height/2;
 		
 		// Scale factor to make coordinates more natural
-		//scl = (float)height / 2;
 		final float FOV = 1.04719755f, d = 1.0f/((float)Math.tan(FOV));
 		sclX = (d / (width / height) + 1) * halfwidth;
 		sclY = (d + 1) * halfheight;
@@ -119,7 +116,6 @@ final class Renderer {
 		lightVector.normalize();
 		lightIntensity = intensity;
 		lightAmbient = ambient;
-		//this.shadeType = shadeType;
 	}
 
 	
@@ -130,7 +126,7 @@ final class Renderer {
 	 * @param object the model to render
 	 */
 	void render(final Camera camera, final Model object) {
-		//Triangle t;
+		
 		material = object.material;
 		currentContainer = object;
 		projectAllVertices(camera);
@@ -149,20 +145,18 @@ final class Renderer {
 			texture = material.texture;
 		}
 		
-		//int count = 0;
 		for (i = 0, l = object.numTriangles(); i < l; i++) {
+			
 			t = object.getTriangle(i);
 			n = t.getNormal();
 			cos = n.dot(camera.getForwardVector());
-			//projN = camera.getMatrix().multiply(t.getNormal()); 
+			
 			// back-face culling: only render one side of triangle
 			if (cos <= 0.001) {
-			//if (projN.z < 0) {
 				renderTriangle(t);
-				//count++;
 			}
+			
 		}
-		//System.out.println(count + " tris drawn");
 		
 	}
 
@@ -185,13 +179,6 @@ final class Renderer {
 			
 			// Calculate position on screen & depth from camera
 			// This bit performs the transformation from orthographic to perspective
-			/*
-			sclOverZ = Math.abs(scl / v.z);
-			v0.projX = v.x * sclOverZ + halfwidth;
-			v0.projY = v.y * sclOverZ + halfheight;
-			v0.projZ = 1.0f/(v.z * scl);
-			*/
-			
 			v0.projX = v.x * sclX / v.z + halfwidth;
 			v0.projY = v.y * sclY / v.z + halfheight;
 			v0.projZ = 1.0f / v.z;
@@ -642,15 +629,6 @@ final class Renderer {
 				zbuf[index] = z;
 				pixels[index] = color;
 				modelbuf[index] = currentContainer;
-				
-				/*
-				if (color == 0xFFFFFFFE) {
-					
-					System.out.println("WHITE " + Integer.toHexString(texture.pixels[tex_index]));
-					System.out.println(" ==> ("+sv+", "+ev+") " + current_v);
-					
-				}
-				*/
 				
 			}
 			
