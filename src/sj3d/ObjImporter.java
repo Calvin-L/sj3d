@@ -412,15 +412,15 @@ public class ObjImporter implements Runnable {
 				write("Vertices:               " + numVertices);
 				write("Texture Coords:         " + numTexCoords);
 				write("Triangles:              " + numTriangles);
-				//write("GL Commands:            " + numGLCommands);
+				write("GL Commands:            " + numGLCommands);
 				write("Frames:                 " + numFrames);
 				
-				//write("Skin offset:            " + offsetSkins);
-				//write("Texture Coords offset:  " + offsetTexCoords);
-				//write("Triangles offset:       " + offsetTriangles);
-				//write("Frames offset:          " + offsetFrames);
-				//write("GL Commands offset:     " + offsetGLCommands);
-				//write("End offset:             " + offsetEnd);
+				write("Skin offset:            " + offsetSkins);
+				write("Texture Coords offset:  " + offsetTexCoords);
+				write("Triangles offset:       " + offsetTriangles);
+				write("Frames offset:          " + offsetFrames);
+				write("GL Commands offset:     " + offsetGLCommands);
+				write("End offset:             " + offsetEnd);
 							
 				// Skins
 				if (numSkins > 0) {

@@ -261,16 +261,27 @@ final class Matrix implements Cloneable {
 		return new Matrix(m);
 
 	}
+	
+	private String pad(String s) {
+		for (int i = s.length(); i < 14; i++) {
+			s += ' ';
+		}
+		return s;
+	}
 
 	@Override
 	public String toString() {
-		return "Matrix     " + data[0][0] + ",\t\t" + data[0][1] + ",\t\t"
-				+ data[0][2] + ",\t\t" + data[0][3] + "\n" + "           "
-				+ data[1][0] + ",\t\t" + data[1][1] + ",\t\t" + data[1][2]
-				+ ",\t\t" + data[1][3] + "\n" + "           " + data[2][0]
-				+ ",\t\t" + data[2][1] + ",\t\t" + data[2][2] + ",\t\t"
-				+ data[2][3] + "\n" + "           " + data[3][0] + ",\t\t"
-				+ data[3][1] + ",\t\t" + data[3][2] + ",\t\t" + data[3][3];
+		return    "Matrix " + pad(data[0][0] + ",") + pad(data[0][1] + ",") + 
+				              pad(data[0][2] + ",") + pad(data[0][3] + "") + 
+				              "\n" 
+				+ "       " + pad(data[1][0] + ",") + pad(data[1][1] + ",") + 
+				              pad(data[1][2] + ",") + pad(data[1][3] + "") + 
+				              "\n" 
+				+ "       " + pad(data[2][0] + ",") + pad(data[2][1] + ",") + 
+				              pad(data[2][2] + ",") + pad(data[2][3] + "") + 
+				              "\n" 
+				+ "       " + pad(data[3][0] + ",") + pad(data[3][1] + ",") + 
+				              pad(data[3][2] + ",") + pad(data[3][3] + "");
 	}
 
 	public static Matrix rotationMatrix(final float rotX, final float rotY,

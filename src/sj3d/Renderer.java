@@ -30,7 +30,7 @@ final class Renderer {
 	private Vertex a, b, c, tempVertex;
 	private Vector n; // Triangle normal; used in lighting calculation
 	private UVCoord uva, uvb, uvc, tempUV;
-	private Model currentContainer;
+	private Model currentModel;
 	private float ax, bx, cx; // Projected position
 	private int ay, by, cy; // Projected position
 	private float az, bz, cz; // Projected position
@@ -127,7 +127,7 @@ final class Renderer {
 	 *            <code>World.SHADE_SMOOTH</code> or
 	 *            <code>World.SHADE_FLAT</code>
 	 */
-	void setLighting(final Vector direction, final float intensity,
+	void setLighting(final Vector direction, final float intensity, 
 			final float ambient) {
 		lightVector = direction;
 		lightVector.normalize();
@@ -146,7 +146,7 @@ final class Renderer {
 	void render(final Camera camera, final Model object) {
 
 		material = object.material;
-		currentContainer = object;
+		currentModel = object;
 		projectAllVertices(camera);
 
 		mode = material.mode & settings.shadeMode;
@@ -186,13 +186,12 @@ final class Renderer {
 	 * @param camera
 	 */
 	private void projectAllVertices(final Camera camera) {
-		final Matrix m = camera.getMatrix().multiply(
-				currentContainer.getMatrix());
+		final Matrix m = camera.getMatrix().multiply(currentModel.getMatrix());
 		Vertex v0, v;
 
-		for (i = 0, l = currentContainer.numVertices(); i < l; i++) {
+		for (i = 0, l = currentModel.numVertices(); i < l; i++) {
 
-			v0 = currentContainer.getVertex(i);
+			v0 = currentModel.getVertex(i);
 
 			// Transform to camera coordinates
 			v = m.multiply(v0);
@@ -200,9 +199,9 @@ final class Renderer {
 			// Calculate position on screen & depth from camera
 			// This bit performs the transformation from orthographic to
 			// perspective
-			v0.projX = v.x * sclX / v.z + halfwidth;
-			v0.projY = v.y * sclY / v.z + halfheight;
 			v0.projZ = 1.0f / v.z;
+			v0.projX = v.x * sclX * v0.projZ + halfwidth;
+			v0.projY = v.y * sclY * v0.projZ + halfheight;
 
 		}
 
@@ -211,8 +210,7 @@ final class Renderer {
 	/**
 	 * Render a specific triangle.
 	 * 
-	 * @param t
-	 *            the triangle to render
+	 * @param t the triangle to render
 	 */
 	private void renderTriangle(final Triangle t) {
 
@@ -228,9 +226,6 @@ final class Renderer {
 		 * Sort vertices by projected y-coordinate; "a" on top, followed by "b"
 		 * and then "c". This gives us two cases, where point "b" is either left
 		 * or right of line "a-c".
-		 * 
-		 * Case 1 | Case 2 -----------+------------ a | a | \ | / | | b | b | |
-		 * / | \ | c | c |
 		 */
 
 		if (b.projY < a.projY) {
@@ -271,6 +266,10 @@ final class Renderer {
 
 		// Ignore triangles behind camera
 		if (az < 0 && bz < 0 && cz < 0)
+			return;
+		
+		// TODO: Lame near-plane clipping
+		if (az < 0 || bz < 0 || cz < 0 || az > 1 || bz > 1 || cz > 1)
 			return;
 
 		// Skip if left or right of screen
@@ -570,7 +569,7 @@ final class Renderer {
 				set(pixels, x, y, ((int) (blue * v)
 						| (((int) (green * v)) << 8)
 						| (((int) (red * v)) << 16) | (ALPHA)));
-				set(modelbuf, x, y, currentContainer);
+				set(modelbuf, x, y, currentModel);
 			}
 			z += dz;
 		}
@@ -596,8 +595,8 @@ final class Renderer {
 				pixels[index] = (int) (blue * current_v)
 						| (((int) (green * current_v)) << 8)
 						| (((int) (red * current_v)) << 16) | ALPHA;
-				modelbuf[index] = currentContainer;
-				set(modelbuf, x, y, currentContainer);
+				modelbuf[index] = currentModel;
+				set(modelbuf, x, y, currentModel);
 			}
 
 			index++;
@@ -649,7 +648,7 @@ final class Renderer {
 
 				zbuf[index] = z;
 				pixels[index] = color;
-				modelbuf[index] = currentContainer;
+				modelbuf[index] = currentModel;
 
 			}
 
