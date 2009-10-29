@@ -6,31 +6,31 @@ package sj3d;
  */
 
 import java.awt.image.ColorModel;
-import java.awt.image.ImageConsumer;
 import java.awt.image.DirectColorModel;
+import java.awt.image.ImageConsumer;
 
 class ImageProducer implements java.awt.image.ImageProducer {
-	
+
 	private ImageConsumer consumer;
 	private int w, h;
 	private int[] pixels;
 	private ColorModel cm;
 	private int hints, sfd;
-	
+
 	public ImageProducer(int w, int h, int pixels[], RenderSettings settings) {
 		this.w = w;
 		this.h = h;
-		
+
 		if (settings.hasMotionBlur())
-			this.cm = new DirectColorModel(32, 0xFF0000, 0xFF00, 0xFF, 0xFF000000);
+			this.cm = new DirectColorModel(32, 0xFF0000, 0xFF00, 0xFF,
+					0xFF000000);
 		else
 			this.cm = new DirectColorModel(32, 0xFF0000, 0xFF00, 0xFF);
-		
+
 		this.pixels = pixels;
 		hints = ImageConsumer.TOPDOWNLEFTRIGHT
-			|ImageConsumer.COMPLETESCANLINES
-			|ImageConsumer.SINGLEPASS
-			|ImageConsumer.SINGLEFRAME;
+				| ImageConsumer.COMPLETESCANLINES | ImageConsumer.SINGLEPASS
+				| ImageConsumer.SINGLEFRAME;
 		sfd = ImageConsumer.SINGLEFRAMEDONE;
 	}
 
@@ -44,7 +44,8 @@ class ImageProducer implements java.awt.image.ImageProducer {
 	}
 
 	public void removeConsumer(ImageConsumer ic) {
-		if (isConsumer(ic)) consumer = null;
+		if (isConsumer(ic))
+			consumer = null;
 	}
 
 	public void requestTopDownLeftRightResend(ImageConsumer ic) {
@@ -62,9 +63,10 @@ class ImageProducer implements java.awt.image.ImageProducer {
 		consumer.setPixels(0, 0, w, h, cm, pixels, 0, w);
 		consumer.imageComplete(sfd);
 	}
-	
+
 	public void update() {
-		if (consumer != null) startProduction(consumer);
+		if (consumer != null)
+			startProduction(consumer);
 	}
 
 }
