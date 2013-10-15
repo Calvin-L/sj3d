@@ -48,19 +48,19 @@ OBJ=Animator.class \
 
 all: bin sj3d jar
 
-bin: 
+bin:
 	mkdir -p $(BIN_DIR)
 
 sj3d: bin $(OBJ)
 
 jar: bin sj3d
-	jar cvf sj3d.jar -C $(BIN_DIR)/ sj3d 
+	jar cvf sj3d.jar -C $(BIN_DIR)/ sj3d
 	jar i sj3d.jar
 
 doc: $(SRC)
 	javadoc -sourcepath $(SRC_DIR) -protected -verbose -d $(DOC_DIR) -version -author sj3d
 
-clean: 
+clean:
 	rm -rf $(BIN_DIR)
 	rm -rf $(DOC_DIR)
 	rm -f sj3d.jar
@@ -70,7 +70,7 @@ clean:
 
 .SUFFIXES: .java .class
 %.java: $(SRC_DIR)/sj3d/$<     # Dummy rule to convince 'make' that our java files DO exist
-	
+
 .java.class:
 	$(JAVAC) $(JAVAC_FLAGS) -d $(BIN_DIR) -sourcepath $(SRC_DIR) $(SRC_DIR)/sj3d/$<
 

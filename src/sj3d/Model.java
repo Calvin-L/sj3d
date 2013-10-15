@@ -4,134 +4,134 @@ import java.util.ArrayList;
 
 public class Model extends Object3D implements Cloneable {
 
-	protected final ArrayList<ArrayList<Vertex>> frames;
-	protected final ArrayList<Triangle> triangles;
-	protected int currentFrame;
-	protected int numFrames;
-	public Material material = new Material();
+    protected final ArrayList<ArrayList<Vertex>> frames;
+    protected final ArrayList<Triangle> triangles;
+    protected int currentFrame;
+    protected int numFrames;
+    public Material material = new Material();
 
-	public Model() {
-		triangles = new ArrayList<Triangle>();
-		frames = new ArrayList<ArrayList<Vertex>>();
-		currentFrame = 0;
-		numFrames = 0;
-	}
+    public Model() {
+        triangles = new ArrayList<Triangle>();
+        frames = new ArrayList<ArrayList<Vertex>>();
+        currentFrame = 0;
+        numFrames = 0;
+    }
 
-	public Model(int numFrames) {
-		triangles = new ArrayList<Triangle>();
-		frames = new ArrayList<ArrayList<Vertex>>(numFrames);
-		for (int i = 0; i < numFrames; i++) {
-			frames.add(i, new ArrayList<Vertex>());
-		}
-		this.numFrames = numFrames;
-		currentFrame = 0;
-	}
+    public Model(int numFrames) {
+        triangles = new ArrayList<Triangle>();
+        frames = new ArrayList<ArrayList<Vertex>>(numFrames);
+        for (int i = 0; i < numFrames; i++) {
+            frames.add(i, new ArrayList<Vertex>());
+        }
+        this.numFrames = numFrames;
+        currentFrame = 0;
+    }
 
-	public Model(Model blueprint) {
-		frames = blueprint.frames;
-		triangles = blueprint.triangles;
-		currentFrame = 0;
-		numFrames = frames.size();
-	}
+    public Model(Model blueprint) {
+        frames = blueprint.frames;
+        triangles = blueprint.triangles;
+        currentFrame = 0;
+        numFrames = frames.size();
+    }
 
-	public Vertex[] getVertices() {
-		return (Vertex[]) frames.get(currentFrame).toArray();
-	}
+    public Vertex[] getVertices() {
+        return (Vertex[]) frames.get(currentFrame).toArray();
+    }
 
-	public Vertex addVertex(float x, float y, float z) {
-		Vertex v = new Vertex(x, y, z);
-		addVertex(v);
-		return v;
-	}
-	
-	public void addVertex(Vertex v) {
-		frames.get(currentFrame).add(v);
-	}
+    public Vertex addVertex(float x, float y, float z) {
+        Vertex v = new Vertex(x, y, z);
+        addVertex(v);
+        return v;
+    }
 
-	public Triangle addTriangle(int a, int b, int c) {
-		Triangle t = new Triangle(this, a, b, c);
-		triangles.add(t);
-		return t;
-	}
+    public void addVertex(Vertex v) {
+        frames.get(currentFrame).add(v);
+    }
 
-	public void addTriangle(Triangle t) {
-		t.setParent(this);
-		triangles.add(t);
-	}
+    public Triangle addTriangle(int a, int b, int c) {
+        Triangle t = new Triangle(this, a, b, c);
+        triangles.add(t);
+        return t;
+    }
 
-	public ArrayList<Vertex> addFrame() {
-		ArrayList<Vertex> vertices = new ArrayList<Vertex>();
-		frames.add(vertices);
-		numFrames++;
-		return vertices;
-	}
+    public void addTriangle(Triangle t) {
+        t.setParent(this);
+        triangles.add(t);
+    }
 
-	public void nextFrame() {
-		currentFrame = (currentFrame + 1) % numFrames;
-	}
+    public ArrayList<Vertex> addFrame() {
+        ArrayList<Vertex> vertices = new ArrayList<Vertex>();
+        frames.add(vertices);
+        numFrames++;
+        return vertices;
+    }
 
-	public int getFrame() {
-		return currentFrame;
-	}
+    public void nextFrame() {
+        currentFrame = (currentFrame + 1) % numFrames;
+    }
 
-	public void setFrame(int i) {
-		currentFrame = i % numFrames;
-	}
+    public int getFrame() {
+        return currentFrame;
+    }
 
-	public void trim() {
-		triangles.trimToSize();
-		frames.trimToSize();
-	}
+    public void setFrame(int i) {
+        currentFrame = i % numFrames;
+    }
 
-	public Vertex getVertex(int index) {
-		return frames.get(currentFrame).get(index);
-	}
+    public void trim() {
+        triangles.trimToSize();
+        frames.trimToSize();
+    }
 
-	public Triangle getTriangle(int index) {
-		return triangles.get(index);
-	}
+    public Vertex getVertex(int index) {
+        return frames.get(currentFrame).get(index);
+    }
 
-	public int numVertices() {
-		return numFrames > 0 ? frames.get(currentFrame).size() : 0;
-	}
+    public Triangle getTriangle(int index) {
+        return triangles.get(index);
+    }
 
-	public int numTriangles() {
-		return triangles.size();
-	}
+    public int numVertices() {
+        return numFrames > 0 ? frames.get(currentFrame).size() : 0;
+    }
 
-	@Override
-	public Model clone() {
-		Model m;
-		m = new Model();
+    public int numTriangles() {
+        return triangles.size();
+    }
 
-		// Add vertices
-		for (int i = 0; i < frames.size(); i++) {
-			ArrayList<Vertex> frame = frames.get(i);
-			ArrayList<Vertex> newFrame = new ArrayList<Vertex>(frame.size());
-			for (int j = 0; j < frame.size(); j++) {
-				newFrame.add(frame.get(j).clone());
-			}
-			m.frames.add(newFrame);
-		}
+    @Override
+    public Model clone() {
+        Model m;
+        m = new Model();
 
-		// Add triangles
-		for (int i = 0; i < triangles.size(); i++) {
-			m.addTriangle(triangles.get(i));
-		}
+        // Add vertices
+        for (int i = 0; i < frames.size(); i++) {
+            ArrayList<Vertex> frame = frames.get(i);
+            ArrayList<Vertex> newFrame = new ArrayList<Vertex>(frame.size());
+            for (int j = 0; j < frame.size(); j++) {
+                newFrame.add(frame.get(j).clone());
+            }
+            m.frames.add(newFrame);
+        }
 
-		m.material = material;
+        // Add triangles
+        for (int i = 0; i < triangles.size(); i++) {
+            m.addTriangle(triangles.get(i));
+        }
 
-		return m;
-	}
+        m.material = material;
 
-	// Events
-	public void onMouseOver(int x, int y) {
-	}
+        return m;
+    }
 
-	public void onMouseOut(int x, int y) {
-	}
+    // Events
+    public void onMouseOver(int x, int y) {
+    }
 
-	public void onClick(int x, int y) {
-	}
+    public void onMouseOut(int x, int y) {
+    }
+
+    public void onClick(int x, int y) {
+    }
 
 }

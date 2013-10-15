@@ -4,6 +4,6 @@ import java.util.EventListener;
 
 public interface WorldEventListener extends EventListener {
 
-	public void worldRenderCompleted();
+    public void worldRenderCompleted();
 
 }

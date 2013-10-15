@@ -2,44 +2,44 @@ package sj3d;
 
 public final class Vertex implements Cloneable {
 
-	public final float x, y, z;
-	public Vector n;
+    public final float x, y, z;
+    public Vector n;
 
-	float projX, projY, projZ;
+    float projX, projY, projZ;
 
-	public Vertex() {
-		x = y = z = 0.0f;
-	}
+    public Vertex() {
+        x = y = z = 0.0f;
+    }
 
-	public Vertex(float x, float y, float z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
-	
-	public Vertex(float x, float y, float z, Vector n) {
-		this(x,y,z);
-		this.n = n;
-	}
+    public Vertex(float x, float y, float z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
 
-	public float getX() {
-		return x;
-	}
+    public Vertex(float x, float y, float z, Vector n) {
+        this(x,y,z);
+        this.n = n;
+    }
 
-	public float getY() {
-		return y;
-	}
+    public float getX() {
+        return x;
+    }
 
-	public float getZ() {
-		return z;
-	}
+    public float getY() {
+        return y;
+    }
 
-	public Vertex clone() {
-		return new Vertex(x, y, z);
-	}
+    public float getZ() {
+        return z;
+    }
 
-	public String toString() {
-		return "Vertex (" + x + ", " + y + ", " + z + ")";
-	}
+    public Vertex clone() {
+        return new Vertex(x, y, z);
+    }
+
+    public String toString() {
+        return "Vertex (" + x + ", " + y + ", " + z + ")";
+    }
 
 }
