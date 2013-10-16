@@ -8,8 +8,14 @@ public final class Texture {
     public final int[] pixels;
     public final int width, height;
 
-    public Texture(Image img, int width, int height) {
+    public Texture(int width, int height) {
         pixels = new int[width * height];
+        this.width = width;
+        this.height = height;
+    }
+
+    public Texture(Image img, int width, int height) {
+        this(width, height);
         PixelGrabber grabber = new PixelGrabber(img, 0, 0, width, height,
                 pixels, 0, width);
         try {
@@ -19,8 +25,6 @@ public final class Texture {
             grabber.abortGrabbing();
             e.printStackTrace();
         }
-        this.width = width;
-        this.height = height;
     }
 
 }

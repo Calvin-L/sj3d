@@ -1,6 +1,6 @@
 package sj3d;
 
-final class UVCoord {
+public final class UVCoord {
 
     public final float u;
     public final float v;
