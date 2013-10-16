@@ -461,6 +461,82 @@ final class Renderer {
 
     private final void renderTriangleFlatTextured() {
 
+        if (dx_ab > dx_ac) { // case 1: point "b" is right of line a-c
+            // a to b
+            for (sx = ax + relative_start_y * dx_ac, ex = ax + relative_start_y
+                    * dx_ab, sz = az + relative_start_y * dz_ac, ez = az
+                    + relative_start_y * dz_ab, stexu = texau
+                    + relative_start_y * dtexu_ac, stexv = texav
+                    + relative_start_y * dtexv_ac, etexu = texau
+                    + relative_start_y * dtexu_ab, etexv = texav
+                    + relative_start_y * dtexv_ab; y < screen_end_y; y++) {
+                drawLineFlatTextured();
+                sx += dx_ac;
+                ex += dx_ab;
+                sz += dz_ac;
+                ez += dz_ab;
+                stexu += dtexu_ac;
+                stexv += dtexv_ac;
+                etexu += dtexu_ab;
+                etexv += dtexv_ab;
+            }
+
+            // b to c
+            screen_end_y = Math.min(cy + 1, height);
+            etexu = texbu;
+            etexv = texbv;
+            for (ex = bx, ez = bz; y < screen_end_y; y++) {
+                drawLineFlatTextured();
+                sx += dx_ac;
+                ex += dx_bc;
+                sz += dz_ac;
+                ez += dz_bc;
+                stexu += dtexu_ac;
+                stexv += dtexv_ac;
+                etexv += dtexv_bc;
+                etexu += dtexu_bc;
+            }
+
+        } else if (dx_ab < dx_ac) { // case 2: point "b" is left of line a-c
+
+            // a to b
+            for (sx = ax + relative_start_y * dx_ab, ex = ax + relative_start_y
+                    * dx_ac, sz = az + relative_start_y * dz_ab, ez = az
+                    + relative_start_y * dz_ac, stexu = texau
+                    + relative_start_y * dtexu_ab, stexv = texav
+                    + relative_start_y * dtexv_ab, etexu = texau
+                    + relative_start_y * dtexu_ac, etexv = texav
+                    + relative_start_y * dtexv_ac; y < screen_end_y; y++) {
+                drawLineFlatTextured();
+                sx += dx_ab;
+                ex += dx_ac;
+                sz += dz_ab;
+                ez += dz_ac;
+                stexu += dtexu_ab;
+                stexv += dtexv_ab;
+                etexu += dtexu_ac;
+                etexv += dtexv_ac;
+            }
+
+            // b to c
+            screen_end_y = Math.min(cy + 1, height);
+            stexu = texbu;
+            stexv = texbv;
+            for (sx = bx, sz = bz; y < screen_end_y; y++) {
+                drawLineFlatTextured();
+                sx += dx_bc;
+                ex += dx_ac;
+                sz += dz_bc;
+                ez += dz_ac;
+                stexu += dtexu_bc;
+                stexv += dtexv_bc;
+                etexu += dtexu_ac;
+                etexv += dtexv_ac;
+            }
+
+        } // Note that if point "b" lies on line a-c, the triangle is treated as
+            // invisibly thin for optimization
+
     }
 
     private final void renderTriangleSmoothTextured() {
@@ -600,6 +676,55 @@ final class Renderer {
             z += dz;
             current_v += dv;
 
+        }
+    }
+
+    private final void drawLineFlatTextured() {
+
+        // Width of this line
+        screen_start = (int) Math.max(sx, 0);
+        screen_end = (int) Math.min(ex, width - 1);
+        final int w = screen_start - screen_end;
+
+        // Z values
+        dz = (sz - ez) / w;
+        z = sz;
+
+        // Texturing
+        dtexu = (stexu - etexu) / w;
+        texu = stexu;
+        dtexv = (stexv - etexv) / w;
+        texv = stexv;
+
+        index = y * width + screen_start;
+
+        for (x = screen_start; x <= screen_end; x++) {
+
+            if (zbuf[index] < z) {
+
+                final float recip = 1 / z;
+                final int tex_index = (((int) (texv * recip * texture.height))
+                        * texture.width + (int) (texu * recip * texture.width));
+
+                color = texture.pixels[tex_index];
+
+                red = (color & 0xff0000) >> 16;
+                green = (color & 0x00ff00) >> 8;
+                blue = (color & 0x0000ff);
+                color = ((int) (blue * v)
+                        | (((int) (green * v)) << 8)
+                        | (((int) (red * v)) << 16) | ALPHA);
+
+                zbuf[index] = z;
+                pixels[index] = color;
+                modelbuf[index] = currentModel;
+
+            }
+
+            index++;
+            z += dz;
+            texv += dtexv;
+            texu += dtexu;
         }
     }
 
