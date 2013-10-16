@@ -20,8 +20,7 @@ sj3d: $(BIN_DIR)
 	find $(SRC_DIR) -iname '*.java' | xargs javac -d $(BIN_DIR) $(JAVAC_FLAGS)
 
 jar: $(BIN_DIR) sj3d
-	jar cvf sj3d.jar -C $(BIN_DIR)/ sj3d
-	jar i sj3d.jar
+	jar cf sj3d.jar -C $(BIN_DIR)/ sj3d
 
 doc: $(SRC)
 	javadoc -sourcepath $(SRC_DIR) -protected -verbose -d $(DOC_DIR) -version -author sj3d
