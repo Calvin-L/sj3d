@@ -25,7 +25,7 @@ public final class World implements MouseListener, MouseMotionListener {
     private final int width, height;
     private int[] pixels; // color values of each pixel
     private float[] zbuf; // depth of object at each pixel
-    private final Model[] modelbuf; // Models at each pixel poin
+    private final Model[] modelbuf; // Models at each pixel point
     private Model mouseOverModel = null; // the model under the mouse
     private int mouseX, mouseY; // mouse coordinates
     private final ImageProducer producer;

@@ -1,11 +1,20 @@
 package sj3d;
 
+/**
+ *      _____
+ *     /     \
+ *    |  X X  |
+ *     \     /
+ *      |||||
+ *
+ * This code is highly bizarre. Read/edit at your own risk.
+ *
+ */
 final class Renderer {
 
     /*
-     *
-     * All these members are defined out here for speed. The methods themselves,
-     * when called, do not need to allocate/deallocate as much memory this way.
+     * I don't actually have a good reason why these are defined out here. It
+     * just seemed to make sense at the time.
      */
 
     // Lighting
