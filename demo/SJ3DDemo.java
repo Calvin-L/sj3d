@@ -18,8 +18,8 @@ import sj3d.World;
 
 class SJ3DDemo {
 
-    private static final int W = 360;
-    private static final int H = 240;
+    private static final int W = 720;
+    private static final int H = 480;
 
     private static Texture createTexture() {
         final int texWidth = 80;
@@ -73,12 +73,12 @@ class SJ3DDemo {
         final JPanel panel = new JPanel() {
             @Override
             public void paint(Graphics g) {
-                g.drawImage(world.getImage(), 0, 0, W*2, H*2, null);
+                g.drawImage(world.getImage(), 0, 0, W, H, null);
                 g.setColor(Color.WHITE);
                 g.drawString("FPS: " + animator.getFPS(), 15, 30);
             }
         };
-        panel.setPreferredSize(new Dimension(W*2, H*2));
+        panel.setPreferredSize(new Dimension(W, H));
 
         final JFrame frame = new JFrame();
         frame.setContentPane(panel);
