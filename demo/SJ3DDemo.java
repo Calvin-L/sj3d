@@ -40,8 +40,8 @@ class SJ3DDemo {
         m.addFrame();
 
         UVCoord uv1 = new UVCoord(0f, 0f);
-        UVCoord uv2 = new UVCoord(0.9f, 0.9f);
-        UVCoord uv3 = new UVCoord(0.9f, 0f);
+        UVCoord uv2 = new UVCoord(1f, 1f);
+        UVCoord uv3 = new UVCoord(1f, 0f);
 
         int i = 0;
         for (float f = 0f; f < 2*Math.PI; f += 0.7) {

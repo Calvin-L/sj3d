@@ -707,13 +707,16 @@ final class Renderer {
 
         index = y * width + screen_start;
 
+        final int texXMax = texture.width - 1;
+        final int texYMax = texture.height - 1;
+
         for (x = screen_start; x <= screen_end; x++) {
 
             if (zbuf[index] < z) {
 
                 final float recip = 1 / z;
-                final int tex_index = (((int) (texv * recip * texture.height))
-                        * texture.width + (int) (texu * recip * texture.width));
+                final int tex_index = (((int) (texv * recip * texYMax))
+                        * texture.width + (int) (texu * recip * texXMax));
 
                 color = texture.pixels[tex_index];
 
@@ -760,13 +763,16 @@ final class Renderer {
 
         index = y * width + screen_start;
 
+        final int texXMax = texture.width - 1;
+        final int texYMax = texture.height - 1;
+
         for (x = screen_start; x <= screen_end; x++) {
 
             if (zbuf[index] < z) {
 
                 final float recip = 1 / z;
-                final int tex_index = (((int) (texv * recip * texture.height))
-                        * texture.width + (int) (texu * recip * texture.width));
+                final int tex_index = (((int) (texv * recip * texYMax))
+                        * texture.width + (int) (texu * recip * texXMax));
 
                 color = texture.pixels[tex_index];
 
