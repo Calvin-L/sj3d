@@ -75,7 +75,7 @@ class SJ3DDemo {
             public void paint(Graphics g) {
                 g.drawImage(world.getImage(), 0, 0, W, H, null);
                 g.setColor(Color.WHITE);
-                g.drawString("FPS: " + animator.getFPS(), 15, 30);
+                g.drawString(String.format("FPS: %.2f", animator.getFPS()), 15, 30);
             }
         };
         panel.setPreferredSize(new Dimension(W, H));
@@ -85,6 +85,7 @@ class SJ3DDemo {
         frame.pack();
         frame.setVisible(true);
         frame.setResizable(false);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         animator.start();
 
