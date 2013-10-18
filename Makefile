@@ -35,4 +35,4 @@ clean:
 	rm -rf $(BIN_DIR)
 	rm -rf $(DOC_DIR)
 	rm -f sj3d.jar
-	rm -f demo/SJ3DDemo.class
+	rm -f demo/*.class
