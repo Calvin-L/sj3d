@@ -339,6 +339,11 @@ final class Renderer {
             v = Ka;
         else
             v = cos * (Kd - Ka) + Ka;
+
+        color =    ((int) (blue  * v)
+                | (((int) (green * v)) << 8)
+                | (((int) (red   * v)) << 16)
+                | (ALPHA));
     }
 
     private final void setupSmooth() {
@@ -648,9 +653,7 @@ final class Renderer {
         for (x = screen_start; x <= screen_end; x++) {
             if (get(zbuf, x, y) < z) {
                 set(zbuf, x, y, z);
-                set(pixels, x, y, ((int) (blue * v)
-                        | (((int) (green * v)) << 8)
-                        | (((int) (red * v)) << 16) | (ALPHA)));
+                set(pixels, x, y, color);
                 set(modelbuf, x, y, currentModel);
             }
             z += dz;
