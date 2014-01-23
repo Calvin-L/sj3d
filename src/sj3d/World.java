@@ -182,52 +182,10 @@ public final class World implements MouseListener, MouseMotionListener {
 
     // Buffer Operations
 
-    private void clearBuffer(int[] buffer, int value) {
-        int size = buffer.length - 1;
-        int cleared = 1;
-        int index = 1;
-        buffer[0] = value;
-        while (cleared < size) {
-            System.arraycopy(buffer, 0, buffer, index, cleared);
-            size -= cleared;
-            index += cleared;
-            cleared <<= 1;
-        }
-        System.arraycopy(buffer, 0, buffer, index, size);
-    }
-
-    private void clearBuffer(float[] buffer, float value) {
-        int size = buffer.length - 1;
-        int cleared = 1;
-        int index = 1;
-        buffer[0] = value;
-        while (cleared < size) {
-            System.arraycopy(buffer, 0, buffer, index, cleared);
-            size -= cleared;
-            index += cleared;
-            cleared <<= 1;
-        }
-        System.arraycopy(buffer, 0, buffer, index, size);
-    }
-
-    private void clearBuffer(Model[] buffer, Model value) {
-        int size = buffer.length - 1;
-        int cleared = 1;
-        int index = 1;
-        buffer[0] = value;
-        while (cleared < size) {
-            System.arraycopy(buffer, 0, buffer, index, cleared);
-            size -= cleared;
-            index += cleared;
-            cleared <<= 1;
-        }
-        System.arraycopy(buffer, 0, buffer, index, size);
-    }
-
     private void clearBuffers() {
-        clearBuffer(pixels, bgcolor);
-        clearBuffer(zbuf, 0);
-        clearBuffer(modelbuf, null);
+        Util.fill(pixels, bgcolor);
+        Util.fill(zbuf, 0);
+        Util.fill(modelbuf, null);
     }
 
     public void mouseClicked(MouseEvent e) {

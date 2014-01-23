@@ -2,3 +2,4 @@
 *.jar
 doc
 bin
+src/sj3d/Util.java
