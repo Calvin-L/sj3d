@@ -24,37 +24,26 @@ final class Renderer {
     private float v;
     private int red, green, blue;
 
-    // Angles
-    private float cos;
-
-    // Quick looping
-    private int i, l, x, y, index;
-
     // Triangle rendering
-    private Triangle t;
-    private Material material;
     private Texture texture;
     private int color = 0xffffff;
     private int mode; // shade mode
-    private Vertex a, b, c, tempVertex;
+    private Vertex a, b, c;
     private Vector n; // Triangle normal; used in lighting calculation
-    private UVCoord uva, uvb, uvc, tempUV;
+    private UVCoord uva, uvb, uvc;
     private Model currentModel;
-    private float ax, bx, cx; // Projected position
+    private float ax, bx; // Projected position
     private int ay, by, cy; // Projected position
     private float az, bz, cz; // Projected position
     private float dx_ac, dx_ab, dx_bc, sx, ex; // X delta values
-    private float dz_ac, dz_ab, dz_bc, dz, sz, ez, z; // Z delta values
-    private float av, bv, cv;
-    private float dv_ac, dv_ab, dv_bc, dv, sv, ev, current_v; // Light intensity
-                                                                // values
-    private int screen_start, screen_end;
-    private float relative_start_y, screen_end_y;
+    private float dz_ac, dz_ab, dz_bc, sz, ez; // Z delta values
+    private float av, bv;
+    private float dv_ac, dv_ab, dv_bc, sv, ev; // Light intensity values
 
     // Texturing
     private float dtexu_ab, dtexu_ac, dtexu_bc, dtexv_ab, dtexv_ac, dtexv_bc,
-            dtexu, dtexv, stexu, stexv, etexu, etexv, texu, texv, texau, texav,
-            texbu, texbv, texcu, texcv;
+            stexu, stexv, etexu, etexv, texau, texav,
+            texbu, texbv;
 
     // Settings
     private final int width, height;
@@ -67,25 +56,6 @@ final class Renderer {
     private final int[] pixels;
     private final float[] zbuf; // depth of object at each pixel
     private final Model[] modelbuf; // Models at each pixel poin
-
-    // private final byte[] shadowStencil; // for shadows...
-
-    // Buffer methods
-    private final void set(float[] buf, int x, int y, float value) {
-        buf[y * width + x] = value;
-    }
-
-    private final void set(int[] buf, int x, int y, int value) {
-        buf[y * width + x] = value;
-    }
-
-    private final void set(Model[] buf, int x, int y, Model value) {
-        buf[y * width + x] = value;
-    }
-
-    private final float get(float[] buf, int x, int y) {
-        return buf[y * width + x];
-    }
 
     Renderer(final int width, final int height, final int[] pixels,
             final float[] zbuf, final Model[] modelbuf,
@@ -126,12 +96,9 @@ final class Renderer {
      *            the direction to which the light will point. The direction
      *            vector does not need to be normalized.
      * @param intensity
-     *            the intensity of the ligh
-     * @param ambien
+     *            the intensity of the light
+     * @param ambient
      *            the ambient intensity
-     * @param shadeType
-     *            <code>World.SHADE_SMOOTH</code> or
-     *            <code>World.SHADE_FLAT</code>
      */
     void setLighting(final Vector direction, final float intensity,
             final float ambient) {
@@ -151,7 +118,7 @@ final class Renderer {
      */
     void render(final Camera camera, final Model object) {
 
-        material = object.material;
+        final Material material = object.material;
         currentModel = object;
         projectAllVertices(camera);
 
@@ -169,11 +136,11 @@ final class Renderer {
             texture = material.texture;
         }
 
-        for (i = 0, l = object.numTriangles(); i < l; i++) {
+        for (int i = 0, l = object.numTriangles(); i < l; i++) {
 
-            t = object.getTriangle(i);
+            final Triangle t = object.getTriangle(i);
             n = t.getNormal();
-            cos = n.dot(camera.getForwardVector());
+            final float cos = n.dot(camera.getForwardVector());
 
             // back-face culling: only render one side of triangle
             if (cos <= 0.001) {
@@ -193,14 +160,13 @@ final class Renderer {
      */
     private void projectAllVertices(final Camera camera) {
         final Matrix m = camera.getMatrix().multiply(currentModel.getMatrix());
-        Vertex v0, v;
 
-        for (i = 0, l = currentModel.numVertices(); i < l; i++) {
+        for (int i = 0, l = currentModel.numVertices(); i < l; i++) {
 
-            v0 = currentModel.getVertex(i);
+            final Vertex v0 = currentModel.getVertex(i);
 
             // Transform to camera coordinates
-            v = m.multiply(v0);
+            final Vertex v = m.multiply(v0);
 
             // Calculate position on screen & depth from camera
             // This bit performs the transformation from orthographic to
@@ -228,9 +194,12 @@ final class Renderer {
         uvb = t.getUVB();
         uvc = t.getUVC();
 
+        Vertex tempVertex;
+        UVCoord tempUV;
+
         /*
          * Sort vertices by projected y-coordinate; "a" on top, followed by "b"
-         * and then "c". This gives us two cases, where point "b" is either lef
+         * and then "c". This gives us two cases, where point "b" is either left
          * or right of line "a-c".
          */
 
@@ -266,7 +235,7 @@ final class Renderer {
         bx = b.projX;
         by = (int) b.projY;
         bz = b.projZ;
-        cx = c.projX;
+        final int cx = (int) c.projX;
         cy = (int) c.projY;
         cz = c.projZ;
 
@@ -296,94 +265,87 @@ final class Renderer {
 
         // delta-x values -- the change in screen-x as we go down the rows of
         // screen-y
-        dx_ac = ((ay == cy) ? 0 : (float) (ax - cx) / (ay - cy)); // a to c
-        dx_ab = ((ay == by) ? bx - ax : (float) (ax - bx) / (ay - by)); // a to
+        dx_ac = ((ay == cy) ? 0 : (ax - cx) / (ay - cy)); // a to c
+        dx_ab = ((ay == by) ? bx - ax : (ax - bx) / (ay - by)); // a to
                                                                         // b
-        dx_bc = ((by == cy) ? 0 : (float) (bx - cx) / (by - cy)); // b to c
+        dx_bc = ((by == cy) ? 0 : (bx - cx) / (by - cy)); // b to c
 
         // delta-z values -- the change in distance from camera as we go down
         // the rows of screen-y
-        dz_ac = ((ay == cy) ? 0 : (float) (az - cz) / (ay - cy)); // a to c
-        dz_ab = ((ay == by) ? 0 : (float) (az - bz) / (ay - by)); // a to b
-        dz_bc = ((by == cy) ? 0 : (float) (bz - cz) / (by - cy)); // b to c
+        dz_ac = ((ay == cy) ? 0 : (az - cz) / (ay - cy)); // a to c
+        dz_ab = ((ay == by) ? 0 : (az - bz) / (ay - by)); // a to b
+        dz_bc = ((by == cy) ? 0 : (bz - cz) / (by - cy)); // b to c
 
-        y = Math.max(ay, 0);
-        relative_start_y = (float) y - ay;
-        screen_end_y = (float) Math.floor(Math.min(by, height));
+        final int y = Math.max(ay, 0);
+        final int relative_start_y = y - ay;
+        final int screen_end_y = Math.min(by, height);
 
         switch (mode) {
         case RenderSettings.SMOOTH_TEXTURED:
             setupSmooth();
             setupTextured();
-            renderTriangleSmoothTextured();
+            renderTriangleSmoothTextured(relative_start_y, y, screen_end_y);
             break;
         case RenderSettings.TEXTURED:
             setupFlat();
             setupTextured();
-            renderTriangleFlatTextured();
+            renderTriangleFlatTextured(relative_start_y, y, screen_end_y);
             break;
         case RenderSettings.SMOOTH:
             setupSmooth();
-            renderTriangleSmoothUntextured();
+            renderTriangleSmoothUntextured(relative_start_y, y, screen_end_y);
             break;
         default:
             setupFlat();
-            renderTriangleFlatUntextured();
+            renderTriangleFlatUntextured(relative_start_y, y, screen_end_y);
         }
 
     }
 
-    private final void setupFlat() {
-        cos = n.dot(lightVector);
-        if (cos <= 0)
-            v = Ka;
-        else
-            v = cos * (Kd - Ka) + Ka;
-
+    private void setupFlat() {
+        final float cos = n.dot(lightVector);
+        v = cos <= 0 ? Ka : cos * (Kd - Ka) + Ka;
         color =    ((int) (blue  * v)
                 | (((int) (green * v)) << 8)
                 | (((int) (red   * v)) << 16)
                 | (ALPHA));
     }
 
-    private final void setupSmooth() {
+    private void setupSmooth() {
 
         // Calculate lighting for each vertex
 
-        cos = a.n.dot(lightVector);
+        float cos = a.n.dot(lightVector);
+
         if (cos <= 0)
-            av = Ka;
-        else
-            av = cos * (Kd - Ka) + Ka;
+            cos = 0;
+
+        final float diff = Kd - Ka;
+
+        av = Ka + cos * diff;
 
         cos = b.n.dot(lightVector);
-        if (cos <= 0)
-            bv = Ka;
-        else
-            bv = cos * (Kd - Ka) + Ka;
+        bv = cos <= 0 ? Ka : cos * (Kd - Ka) + Ka;
 
         cos = c.n.dot(lightVector);
-        if (cos <= 0)
-            cv = Ka;
-        else
-            cv = cos * (Kd - Ka) + Ka;
+        float cv = cos <= 0 ? Ka : cos * (Kd - Ka) + Ka;
 
         // Change in color value as we progress down rows
 
-        dv_ac = ((ay == cy) ? 0 : (float) (av - cv) / (ay - cy)); // a to c
-        dv_ab = ((ay == by) ? 0 : (float) (av - bv) / (ay - by)); // a to b
-        dv_bc = ((by == cy) ? 0 : (float) (bv - cv) / (by - cy)); // b to c
+        dv_ac = ((ay == cy) ? 0 : (av - cv) / (ay - cy)); // a to c
+        dv_ab = ((ay == by) ? 0 : (av - bv) / (ay - by)); // a to b
+        dv_bc = ((by == cy) ? 0 : (bv - cv) / (by - cy)); // b to c
 
     }
 
-    private final void setupTextured() {
+    private void setupTextured() {
 
         texau = uva.u * az;
         texav = uva.v * az;
         texbu = uvb.u * bz;
         texbv = uvb.v * bz;
-        texcu = uvc.u * cz;
-        texcv = uvc.v * cz;
+        final float texcu = uvc.u * cz;
+        final float texcv = uvc.v * cz;
 
         dtexu_ab = (texau - texbu) / (ay - by);
         dtexv_ab = (texav - texbv) / (ay - by);
@@ -396,7 +358,7 @@ final class Renderer {
 
     }
 
-    private final void renderTriangleFlatUntextured() {
+    private void renderTriangleFlatUntextured(int relative_start_y, int y, int screen_end_y) {
 
         if (dx_ab > dx_ac) { // case 1: point "b" is right of line a-c
 
@@ -404,13 +366,13 @@ final class Renderer {
             for (sx = ax + relative_start_y * dx_ac, ex = ax + relative_start_y
                     * dx_ab, sz = az + relative_start_y * dz_ac, ez = az
                     + relative_start_y * dz_ab; y < screen_end_y; y++, sx += dx_ac, ex += dx_ab, sz += dz_ac, ez += dz_ab) {
-                drawLineFlat();
+                drawLineFlat(y);
             }
 
             // b to c
             screen_end_y = Math.min(cy + 1, height);
             for (ex = bx, ez = bz; y < screen_end_y; y++, sx += dx_ac, ex += dx_bc, sz += dz_ac, ez += dz_bc) {
-                drawLineFlat();
+                drawLineFlat(y);
             }
 
         } else if (dx_ab < dx_ac) { // case 2: point "b" is left of line a-c
@@ -418,20 +380,20 @@ final class Renderer {
             for (sx = ax + relative_start_y * dx_ab, ex = ax + relative_start_y
                     * dx_ac, sz = az + relative_start_y * dz_ab, ez = az
                     + relative_start_y * dz_ac; y < screen_end_y; y++, sx += dx_ab, ex += dx_ac, sz += dz_ab, ez += dz_ac) {
-                drawLineFlat();
+                drawLineFlat(y);
             }
 
             // b to c
             screen_end_y = Math.min(cy + 1, height);
             for (sx = bx, sz = bz; y < screen_end_y; y++, sx += dx_bc, ex += dx_ac, sz += dz_bc, ez += dz_ac) {
-                drawLineFlat();
+                drawLineFlat(y);
             }
 
         }
 
     }
 
-    private final void renderTriangleSmoothUntextured() {
+    private void renderTriangleSmoothUntextured(int relative_start_y, int y, int screen_end_y) {
 
         if (dx_ab > dx_ac) { // case 1: point "b" is right of line a-c
 
@@ -440,15 +402,13 @@ final class Renderer {
                     * dx_ab, sz = az + relative_start_y * dz_ac, ez = az
                     + relative_start_y * dz_ab, sv = av + relative_start_y
                     * dv_ac, ev = av + relative_start_y * dv_ab; y < screen_end_y; y++, sx += dx_ac, ex += dx_ab, sz += dz_ac, ez += dz_ab, sv += dv_ac, ev += dv_ab) {
-                drawLineSmooth(Math.round(sx), Math.round(ex), sz, ez, sv, ev,
-                        color);
+                drawLineSmooth(y, Math.round(sx), Math.round(ex), sz, ez, sv, ev, color);
             }
 
             // b to c
             screen_end_y = Math.min(cy + 1, height);
             for (ex = bx, ez = bz, ev = bv; y < screen_end_y; y++, sx += dx_ac, ex += dx_bc, sz += dz_ac, ez += dz_bc, sv += dv_ac, ev += dv_bc) {
-                drawLineSmooth(Math.round(sx), Math.round(ex), sz, ez, sv, ev,
-                        color);
+                drawLineSmooth(y, Math.round(sx), Math.round(ex), sz, ez, sv, ev, color);
             }
 
         } else if (dx_ab < dx_ac) { // case 2: point "b" is left of line a-c
@@ -457,15 +417,13 @@ final class Renderer {
                     * dx_ac, sz = az + relative_start_y * dz_ab, ez = az
                     + relative_start_y * dz_ac, sv = av + relative_start_y
                     * dv_ab, ev = av + relative_start_y * dv_ac; y < screen_end_y; y++, sx += dx_ab, ex += dx_ac, sz += dz_ab, ez += dz_ac, sv += dv_ab, ev += dv_ac) {
-                drawLineSmooth(Math.round(sx), Math.round(ex), sz, ez, sv, ev,
-                        color);
+                drawLineSmooth(y, Math.round(sx), Math.round(ex), sz, ez, sv, ev, color);
             }
 
             // b to c
             screen_end_y = Math.min(cy + 1, height);
             for (sx = bx, sz = bz, sv = bv; y < screen_end_y; y++, sx += dx_bc, ex += dx_ac, sz += dz_bc, ez += dz_ac, sv += dv_bc, ev += dv_ac) {
-                drawLineSmooth(Math.round(sx), Math.round(ex), sz, ez, sv, ev,
-                        color);
+                drawLineSmooth(y, Math.round(sx), Math.round(ex), sz, ez, sv, ev, color);
             }
 
         } // Note that if point "b" lies on line a-c, the triangle is treated as
@@ -473,7 +431,7 @@ final class Renderer {
 
     }
 
-    private final void renderTriangleFlatTextured() {
+    private void renderTriangleFlatTextured(int relative_start_y, int y, int screen_end_y) {
 
         if (dx_ab > dx_ac) { // case 1: point "b" is right of line a-c
             // a to b
@@ -484,7 +442,7 @@ final class Renderer {
                     + relative_start_y * dtexv_ac, etexu = texau
                     + relative_start_y * dtexu_ab, etexv = texav
                     + relative_start_y * dtexv_ab; y < screen_end_y; y++) {
-                drawLineFlatTextured();
+                drawLineFlatTextured(y, Math.round(sx), Math.round(ex), sz, ez, stexu, etexu, stexv, etexv);
                 sx += dx_ac;
                 ex += dx_ab;
                 sz += dz_ac;
@@ -500,7 +458,7 @@ final class Renderer {
             etexu = texbu;
             etexv = texbv;
             for (ex = bx, ez = bz; y < screen_end_y; y++) {
-                drawLineFlatTextured();
+                drawLineFlatTextured(y, Math.round(sx), Math.round(ex), sz, ez, stexu, etexu, stexv, etexv);
                 sx += dx_ac;
                 ex += dx_bc;
                 sz += dz_ac;
@@ -521,7 +479,7 @@ final class Renderer {
                     + relative_start_y * dtexv_ab, etexu = texau
                     + relative_start_y * dtexu_ac, etexv = texav
                     + relative_start_y * dtexv_ac; y < screen_end_y; y++) {
-                drawLineFlatTextured();
+                drawLineFlatTextured(y, Math.round(sx), Math.round(ex), sz, ez, stexu, etexu, stexv, etexv);
                 sx += dx_ab;
                 ex += dx_ac;
                 sz += dz_ab;
@@ -537,7 +495,7 @@ final class Renderer {
             stexu = texbu;
             stexv = texbv;
             for (sx = bx, sz = bz; y < screen_end_y; y++) {
-                drawLineFlatTextured();
+                drawLineFlatTextured(y, Math.round(sx), Math.round(ex), sz, ez, stexu, etexu, stexv, etexv);
                 sx += dx_bc;
                 ex += dx_ac;
                 sz += dz_bc;
@@ -553,11 +511,11 @@ final class Renderer {
 
     }
 
-    private final void renderTriangleSmoothTextured() {
+    private void renderTriangleSmoothTextured(int relative_start_y, int y, int screen_end_y) {
 
         if (dx_ab > dx_ac) { // case 1: point "b" is right of line a-c
             // a to b
-            for (sx = ax + relative_start_y * dx_ac, ex = ax + relative_start_y
+            for (float sx = ax + relative_start_y * dx_ac, ex = ax + relative_start_y
                     * dx_ab, sz = az + relative_start_y * dz_ac, ez = az
                     + relative_start_y * dz_ab, sv = av + relative_start_y
                     * dv_ac, ev = av + relative_start_y * dv_ab, stexu = texau
@@ -565,7 +523,7 @@ final class Renderer {
                     + relative_start_y * dtexv_ac, etexu = texau
                     + relative_start_y * dtexu_ab, etexv = texav
                     + relative_start_y * dtexv_ab; y < screen_end_y; y++) {
-                drawLineSmoothTextured();
+                drawLineSmoothTextured(y, Math.round(sx), Math.round(ex), sz, ez, sv, ev, stexu, etexu, stexv, etexv);
                 sx += dx_ac;
                 ex += dx_ab;
                 sz += dz_ac;
@@ -582,8 +540,8 @@ final class Renderer {
             screen_end_y = Math.min(cy + 1, height);
             etexu = texbu;
             etexv = texbv;
-            for (ex = bx, ez = bz, ev = bv; y < screen_end_y; y++) {
-                drawLineSmoothTextured();
+            for (float ex = bx, ez = bz, ev = bv; y < screen_end_y; y++) {
+                drawLineSmoothTextured(y, Math.round(sx), Math.round(ex), sz, ez, sv, ev, stexu, etexu, stexv, etexv);
                 sx += dx_ac;
                 ex += dx_bc;
                 sz += dz_ac;
@@ -599,7 +557,7 @@ final class Renderer {
         } else if (dx_ab < dx_ac) { // case 2: point "b" is left of line a-c
 
             // a to b
-            for (sx = ax + relative_start_y * dx_ab, ex = ax + relative_start_y
+            for (float sx = ax + relative_start_y * dx_ab, ex = ax + relative_start_y
                     * dx_ac, sz = az + relative_start_y * dz_ab, ez = az
                     + relative_start_y * dz_ac, sv = av + relative_start_y
                     * dv_ab, ev = av + relative_start_y * dv_ac, stexu = texau
@@ -607,7 +565,7 @@ final class Renderer {
                     + relative_start_y * dtexv_ab, etexu = texau
                     + relative_start_y * dtexu_ac, etexv = texav
                     + relative_start_y * dtexv_ac; y < screen_end_y; y++) {
-                drawLineSmoothTextured();
+                drawLineSmoothTextured(y, Math.round(sx), Math.round(ex), sz, ez, sv, ev, stexu, etexu, stexv, etexv);
                 sx += dx_ab;
                 ex += dx_ac;
                 sz += dz_ab;
@@ -624,8 +582,8 @@ final class Renderer {
             screen_end_y = Math.min(cy + 1, height);
             stexu = texbu;
             stexv = texbv;
-            for (sx = bx, sz = bz, sv = bv; y < screen_end_y; y++) {
-                drawLineSmoothTextured();
+            for (float sx = bx, sz = bz, sv = bv; y < screen_end_y; y++) {
+                drawLineSmoothTextured(y, Math.round(sx), Math.round(ex), sz, ez, sv, ev, stexu, etexu, stexv, etexv);
                 sx += dx_bc;
                 ex += dx_ac;
                 sz += dz_bc;
@@ -645,35 +603,38 @@ final class Renderer {
 
     // Line drawing
 
-    private final void drawLineFlat() {
-        dz = (float) (sz - ez) / (sx - ex);
-        z = sz;
-        screen_start = (int) Math.max(sx, 0);
-        screen_end = (int) Math.min(ex, width - 1);
-        for (x = screen_start; x <= screen_end; x++) {
-            if (get(zbuf, x, y) < z) {
-                set(zbuf, x, y, z);
-                set(pixels, x, y, color);
-                set(modelbuf, x, y, currentModel);
+    private void drawLineFlat(int y) {
+        final float dz = (sz - ez) / (sx - ex);
+        float z = sz;
+        final int screen_start = (int) Math.max(sx, 0);
+        final int screen_end = (int) Math.min(ex, width - 1);
+        final int row = y * width;
+        final int start = row + screen_start;
+        final int end = row + screen_end;
+        for (int index = start; index <= end; index++) {
+            if (zbuf[index] < z) {
+                zbuf[index] = z;
+                pixels[index] = color;
+                modelbuf[index] = currentModel;
             }
             z += dz;
         }
     }
 
-    private final void drawLineSmooth(int start, int end, float start_z,
+    private void drawLineSmooth(int y, int start, int end, float start_z,
             float end_z, float start_v, float end_v, int color) {
-        dz = (float) (start_z - end_z) / (start - end);
-        z = start_z;
-        dv = (float) (start_v - end_v) / (start - end);
-        current_v = start_v;
-        red = (color & 0xff0000) >> 16;
-        green = (color & 0x00ff00) >> 8;
-        blue = (color & 0x0000ff);
-        screen_start = Math.max(start, 0);
-        screen_end = Math.min(end, width - 1);
-        index = y * width + screen_start;
+        final float dz = (start_z - end_z) / (start - end);
+        float z = start_z;
+        final float dv = (start_v - end_v) / (start - end);
+        float current_v = start_v;
+        final int red = (color & 0xff0000) >> 16;
+        final int green = (color & 0x00ff00) >> 8;
+        final int blue = (color & 0x0000ff);
+        final int screen_start = Math.max(start, 0);
+        final int screen_end = Math.min(end, width - 1);
+        int index = y * width + screen_start;
 
-        for (x = screen_start; x <= screen_end; x++) {
+        for (int x = screen_start; x <= screen_end; x++) {
 
             if (zbuf[index] < z) {
                 zbuf[index] = z;
@@ -681,7 +642,6 @@ final class Renderer {
                         | (((int) (green * current_v)) << 8)
                         | (((int) (red * current_v)) << 16) | ALPHA;
                 modelbuf[index] = currentModel;
-                set(modelbuf, x, y, currentModel);
             }
 
             index++;
@@ -691,29 +651,29 @@ final class Renderer {
         }
     }
 
-    private final void drawLineFlatTextured() {
+    private void drawLineFlatTextured(int y, int sx, int ex, float sz, float ez, float stexu, float etexu, float stexv, float etexv) {
 
         // Width of this line
-        screen_start = (int) Math.max(sx, 0);
-        screen_end = (int) Math.min(ex, width - 1);
+        final int screen_start = Math.max(sx, 0);
+        final int screen_end = Math.min(ex, width - 1);
         final int w = screen_start - screen_end;
 
         // Z values
-        dz = (sz - ez) / w;
-        z = sz;
+        final float dz = (sz - ez) / w;
+        float z = sz;
 
         // Texturing
-        dtexu = (stexu - etexu) / w;
-        texu = stexu;
-        dtexv = (stexv - etexv) / w;
-        texv = stexv;
+        final float dtexu = (stexu - etexu) / w;
+        float texu = stexu;
+        final float dtexv = (stexv - etexv) / w;
+        float texv = stexv;
 
-        index = y * width + screen_start;
+        int index = y * width + screen_start;
 
         final int texXMax = texture.width - 1;
         final int texYMax = texture.height - 1;
 
-        for (x = screen_start; x <= screen_end; x++) {
+        for (int x = screen_start; x <= screen_end; x++) {
 
             if (zbuf[index] < z) {
 
@@ -721,12 +681,12 @@ final class Renderer {
                 final int tex_index = (((int) (texv * recip * texYMax))
                         * texture.width + (int) (texu * recip * texXMax));
 
-                color = texture.pixels[tex_index];
+                final int base_color = texture.pixels[tex_index];
 
-                red = (color & 0xff0000) >> 16;
-                green = (color & 0x00ff00) >> 8;
-                blue = (color & 0x0000ff);
-                color = ((int) (blue * v)
+                final int red = (base_color & 0xff0000) >> 16;
+                final int green = (base_color & 0x00ff00) >> 8;
+                final int blue = (base_color & 0x0000ff);
+                final int color = ((int) (blue * v)
                         | (((int) (green * v)) << 8)
                         | (((int) (red * v)) << 16) | ALPHA);
 
@@ -743,33 +703,33 @@ final class Renderer {
         }
     }
 
-    private final void drawLineSmoothTextured() {
+    private void drawLineSmoothTextured(int y, int sx, int ex, float sz, float ez, float sv, float ev, float stexu, float etexu, float stexv, float etexv) {
 
         // Width of this line
-        screen_start = (int) Math.max(sx, 0);
-        screen_end = (int) Math.min(ex, width - 1);
+        final int screen_start = Math.max(sx, 0);
+        final int screen_end = Math.min(ex, width - 1);
         final int w = screen_start - screen_end;
 
         // Z values
-        dz = (sz - ez) / w;
-        z = sz;
+        final float dz = (sz - ez) / w;
+        float z = sz;
 
         // Lighting
-        dv = (sv - ev) / w;
-        current_v = sv;
+        final float dv = (sv - ev) / w;
+        float current_v = sv;
 
         // Texturing
-        dtexu = (stexu - etexu) / w;
-        texu = stexu;
-        dtexv = (stexv - etexv) / w;
-        texv = stexv;
+        final float dtexu = (stexu - etexu) / w;
+        float texu = stexu;
+        final float dtexv = (stexv - etexv) / w;
+        float texv = stexv;
 
-        index = y * width + screen_start;
+        int index = y * width + screen_start;
 
         final int texXMax = texture.width - 1;
         final int texYMax = texture.height - 1;
 
-        for (x = screen_start; x <= screen_end; x++) {
+        for (int x = screen_start; x <= screen_end; x++) {
 
             if (zbuf[index] < z) {
 
@@ -777,12 +737,12 @@ final class Renderer {
                 final int tex_index = (((int) (texv * recip * texYMax))
                         * texture.width + (int) (texu * recip * texXMax));
 
-                color = texture.pixels[tex_index];
+                final int base_color = texture.pixels[tex_index];
 
-                red = (color & 0xff0000) >> 16;
-                green = (color & 0x00ff00) >> 8;
-                blue = (color & 0x0000ff);
-                color = ((int) (blue * current_v)
+                final int red = (base_color & 0xff0000) >> 16;
+                final int green = (base_color & 0x00ff00) >> 8;
+                final int blue = (base_color & 0x0000ff);
+                final int color = ((int) (blue * current_v)
                         | (((int) (green * current_v)) << 8)
                         | (((int) (red * current_v)) << 16) | ALPHA);
 
