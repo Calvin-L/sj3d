@@ -18,8 +18,9 @@ public final class RenderSettings {
 
     // Constants
 
-    public static final int SMOOTH = 4;
-    public static final int TEXTURED = 16;
+    public static final int FLAT = 0;
+    public static final int SMOOTH = 1;
+    public static final int TEXTURED = 2;
     public static final int SMOOTH_TEXTURED = SMOOTH | TEXTURED;
 
     // Settings

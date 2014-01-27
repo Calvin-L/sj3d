@@ -108,7 +108,7 @@ public final class World implements MouseListener, MouseMotionListener {
     }
 
     public void setBackgroundColor(int color) {
-        bgcolor = color | renderer.ALPHA;
+        bgcolor = color | settings.mblur;
     }
 
     public Model getModelAtPoint(final int x, final int y) {

@@ -1,0 +1,178 @@
+package sj3d;
+
+/**
+ * Renders worlds.
+ */
+final class Renderer {
+
+    // Lighting
+    private Vector lightVector;
+    private float lightAmbient, lightIntensity;
+
+    // Settings
+    private final int width, height;
+    private final int halfwidth, halfheight;
+    private final float sclX, sclY;
+    private final int ALPHA;
+
+    // Buffers
+    private final int[] pixels;
+    private final float[] zbuf; // depth of object at each pixel
+    private final Model[] modelbuf; // Models at each pixel point
+
+    Renderer(final int width, final int height, final int[] pixels,
+            final float[] zbuf, final Model[] modelbuf,
+            final RenderSettings settings) {
+
+        // Screen size
+        this.width = width;
+        this.height = height;
+        halfwidth = width / 2;
+        halfheight = height / 2;
+
+        // Scale factor to make coordinates more natural
+        final float FOV = 1.04719755f, d = 1.0f / ((float) Math.tan(FOV));
+        sclX = (d / (width / height) + 1) * halfwidth;
+        sclY = (d + 1) * halfheight;
+
+        // this.vertices = vertices;
+        this.pixels = pixels;
+        this.zbuf = zbuf;
+        this.modelbuf = modelbuf;
+        this.lightVector = new Vector(0, 1, 0);
+        this.lightAmbient = 0;
+        this.lightIntensity = 1;
+
+        // Configure settings
+        ALPHA = settings.mblur;
+
+    }
+
+    /**
+     * Set the scene lighting.
+     *
+     * @param direction
+     *            the direction to which the light will point. The direction
+     *            vector does not need to be normalized.
+     * @param intensity
+     *            the intensity of the light
+     * @param ambient
+     *            the ambient intensity
+     */
+    void setLighting(final Vector direction, final float intensity,
+            final float ambient) {
+        lightVector = direction;
+        lightVector.normalize();
+        lightIntensity = intensity;
+        lightAmbient = ambient;
+    }
+
+    /**
+     * Render a model to the specified camera.
+     *
+     * @param camera
+     *            the camera
+     * @param object
+     *            the model to render
+     */
+    void render(final Camera camera, final Model object) {
+
+        final Material material = object.material;
+        projectAllVertices(camera, object);
+
+        for (int i = 0, l = object.numTriangles(); i < l; i++) {
+
+            final Triangle t = object.getTriangle(i);
+            final float cos = t.getNormal().dot(camera.getForwardVector());
+
+            // back-face culling: only render one side of triangle
+            if (cos <= 0.001) {
+                renderTriangle(object, t, material);
+            }
+
+        }
+
+    }
+
+    /**
+     * Project all vertices into their correct screen coordinates. This function
+     * has the effect of updating the <code>projX</code>, <code>projY</code>,
+     * and <code>projZ</code> variables in each vertex of the model.
+     *
+     * @param camera the camera to project to
+     * @param model  the model whose vertices should be projected
+     */
+    private void projectAllVertices(final Camera camera, final Model model) {
+        final Matrix m = camera.getMatrix().multiply(model.getMatrix());
+
+        for (int i = 0, l = model.numVertices(); i < l; i++) {
+
+            final Vertex v0 = model.getVertex(i);
+
+            // Transform to camera coordinates
+            final Vertex v = m.multiply(v0);
+
+            // Calculate position on screen & depth from camera
+            // This bit performs the transformation from orthographic to
+            // perspective
+            v0.projZ = 1.0f / v.z;
+            v0.projX = v.x * sclX * v0.projZ + halfwidth;
+            v0.projY = v.y * sclY * v0.projZ + halfheight;
+
+        }
+
+    }
+
+    /**
+     * Render a specific triangle.
+     */
+    private void renderTriangle(final Model model, final Triangle t, final Material material) {
+
+        // Vertices & vertex texture coordinates
+        Vertex a = t.getVertexA();
+        Vertex b = t.getVertexB();
+        Vertex c = t.getVertexC();
+        UVCoord uva = t.getUVA();
+        UVCoord uvb = t.getUVB();
+        UVCoord uvc = t.getUVC();
+
+        Vertex tempVertex;
+        UVCoord tempUV;
+
+        /*
+         * Sort vertices by projected y-coordinate; "a" on top, followed by "b"
+         * and then "c". This gives us two cases, where point "b" is either left
+         * or right of line "a-c".
+         */
+
+        if (b.projY < a.projY) {
+            tempVertex = a;
+            a = b;
+            b = tempVertex;
+            tempUV = uva;
+            uva = uvb;
+            uvb = tempUV;
+        }
+        if (c.projY < b.projY) {
+            tempVertex = b;
+            b = c;
+            c = tempVertex;
+            tempUV = uvb;
+            uvb = uvc;
+            uvc = tempUV;
+        }
+        if (b.projY < a.projY) {
+            tempVertex = a;
+            a = b;
+            b = tempVertex;
+            tempUV = uva;
+            uva = uvb;
+            uvb = tempUV;
+        }
+
+        // See gen-renderer.py
+        /* {AUTOGENERATED CODE HERE} */
+
+    }
+
+}

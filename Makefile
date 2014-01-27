@@ -21,7 +21,10 @@ $(BIN_DIR):
 src/sj3d/Util.java: scripts/gen-util.py src/sj3d/Util.java.in
 	$(PYTHON) scripts/gen-util.py <$@.in >$@
 
-sj3d: $(BIN_DIR) src/sj3d/Util.java
+src/sj3d/Renderer.java: scripts/gen-renderer.py src/sj3d/Renderer.java.in
+	$(PYTHON) scripts/gen-renderer.py <$@.in >$@
+
+sj3d: $(BIN_DIR) src/sj3d/Util.java src/sj3d/Renderer.java
 	find $(SRC_DIR) -iname '*.java' | xargs $(JAVAC) -d $(BIN_DIR) $(JAVAC_FLAGS)
 
 demo/SJ3DDemo.class: sj3d.jar demo/SJ3DDemo.java
@@ -41,4 +44,4 @@ clean:
 	$(RM) -rf $(DOC_DIR)
 	$(RM) -f sj3d.jar
 	$(RM) -f demo/*.class
-	$(RM) -f src/sj3d/Util.java
+	$(RM) -f src/sj3d/Util.java src/sj3d/Renderer.java

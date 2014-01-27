@@ -3,3 +3,4 @@
 doc
 bin
 src/sj3d/Util.java
+src/sj3d/Renderer.java
