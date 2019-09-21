@@ -73,7 +73,9 @@ class SJ3DDemo {
         final JPanel panel = new JPanel() {
             @Override
             public void paint(Graphics g) {
-                g.drawImage(world.getImage(), 0, 0, W, H, null);
+                synchronized (world) {
+                    g.drawImage(world.getImage(), 0, 0, W, H, null);
+                }
                 g.setColor(Color.WHITE);
                 g.drawString(String.format("FPS: %.2f", animator.getFPS()), 15, 30);
             }
@@ -98,9 +100,11 @@ class SJ3DDemo {
             float y = (float)Math.cos((float)delta / 3000f) * 1f + 2.5f;
             float z = (float)Math.sin((float)delta / 1000f) * 3f;
 
-            world.setLighting(x, y, z, 1f, 0.3f);
-            camera.setPos(x, y, z);
-            camera.lookAt(0, 0, 0);
+            synchronized (world) { // avoid conflicts with the animator
+                world.setLighting(x, y, z, 1f, 0.3f);
+                camera.setPos(x, y, z);
+                camera.lookAt(0, 0, 0);
+            }
             panel.repaint();
             try {
                 Thread.sleep(10);
