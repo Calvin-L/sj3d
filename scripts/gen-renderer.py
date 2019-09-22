@@ -84,7 +84,7 @@ for (mode, smooth, textured) in [("FLAT", False, False), ("SMOOTH", True, False)
         for vert1 in ["a", "b"]:
             for vert2 in ["b", "c"]:
                 if vert1 < vert2 and v != "y":
-                    write("        final {t} d{v}_{v1}{v2} = {e};".format(t=t, v1=vert1, v2=vert2, v=v, e="({v1}y == {v2}y) ? 0 : (({v1}{v}-{v2}{v}) / ({v1}y-{v2}y))".format(v1=vert1, v2=vert2, v=v)))
+                    write("        final {t} d{v}_{v1}{v2} = {e};".format(t=t, v1=vert1, v2=vert2, v=v, e="({v1}y == {v2}y) ? ({v2}{v}-{v1}{v}) : (({v1}{v}-{v2}{v}) / ({v1}y-{v2}y))".format(v1=vert1, v2=vert2, v=v)))
 
     write("        int y = Math.max(ay, 0);")
     write("        final int relativeStartY = y - ay;")
