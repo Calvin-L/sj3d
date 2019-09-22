@@ -12,7 +12,7 @@ final class Renderer {
     // Settings
     private final int width, height;
     private final int halfwidth, halfheight;
-    private final float sclX, sclY;
+    private final float fudgeScaling;
     private final int ALPHA;
 
     // Buffers
@@ -32,8 +32,7 @@ final class Renderer {
 
         // Scale factor to make coordinates more natural
         final float FOV = 1.04719755f, d = 1.0f / ((float) Math.tan(FOV));
-        sclX = (d / (width / height) + 1) * halfwidth;
-        sclY = (d + 1) * halfheight;
+        fudgeScaling = (d / (width / height) + 1) * halfwidth;
 
         // this.vertices = vertices;
         this.pixels = pixels;
@@ -116,8 +115,8 @@ final class Renderer {
             // This bit performs the transformation from orthographic to
             // perspective
             v0.projZ = 1.0f / v.z;
-            v0.projX = v.x * sclX * v0.projZ + halfwidth;
-            v0.projY = v.y * sclY * v0.projZ + halfheight;
+            v0.projX = v.x * fudgeScaling * v0.projZ + halfwidth;
+            v0.projY = v.y * fudgeScaling * v0.projZ + halfheight;
 
         }
 
