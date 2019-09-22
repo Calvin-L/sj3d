@@ -29,11 +29,9 @@ public class Animator implements Runnable {
     private volatile float avg_fps = 0.0f;
     private int fps_probes = 0;
     private final int fps_probe_step = 500; // milliseconds
-    private long time = 0;
     private long timestamp = 0;
     private long total_frames;
     private long start_time;
-    private long total_time;
 
     public Animator(World w) {
         world = w;
@@ -113,14 +111,14 @@ public class Animator implements Runnable {
     }
 
     private void benchmark() {
-        time = System.currentTimeMillis();
+        final long now = System.currentTimeMillis();
         total_frames++;
         fps_probes += 1;
-        total_time = time - start_time;
-        if (System.currentTimeMillis() > timestamp + fps_probe_step) {
-            fps = (float) fps_probes / ((float) (time - timestamp) / 1000);
-            timestamp = time;
+        if (now > timestamp + fps_probe_step) {
+            fps = (float) fps_probes / ((float) (now - timestamp) / 1000);
+            timestamp = now;
             fps_probes = 0;
+            final long total_time = now - start_time;
             avg_fps = (float) total_frames / total_time * 1000;
         }
     }
