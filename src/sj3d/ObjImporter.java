@@ -46,6 +46,19 @@ public class ObjImporter {
 
     private class ObjFormat implements ModelFormat {
 
+        private int fixupIndex(int index, int collectionLen) {
+            if (index < 0) {
+                // Negative indexes are relative to the end of the collection,
+                // with -1 being the last element.
+                if (index < -collectionLen) {
+                    throw new IllegalArgumentException("bad index: " + index + " (collection size is " + collectionLen + ")");
+                }
+                return collectionLen + index;
+            }
+            // Positive indexes are numbered from 1, not 0.
+            return index - 1;
+        }
+
         public void load(InputStream stream, Model model) throws IOException {
             int vOffset = model.numVertices();
             ArrayList<Vector> vn = null; // vertex normals
@@ -65,6 +78,10 @@ public class ObjImporter {
             while ((line = reader.readLine()) != null) {
 
                 bytesRead.addAndGet(line.length() + 1);
+
+                if (line.length() == 0) {
+                    continue;
+                }
 
                 if (line.charAt(0) == 'v') {
                     if (line.charAt(1) == 't') {
@@ -101,24 +118,23 @@ public class ObjImporter {
                         if (parts2.length != 3) {
                             System.out.println("Error: you MUST have vertex normals");
                         } else {
-                            verts[i - 1] = Integer.parseInt(parts2[0])
-                                    + vOffset;
-                            Vector v = vn.get(Integer.parseInt(parts2[2]) - 1);
+                            int vertIndex   = fixupIndex(Integer.parseInt(parts2[0]), vertices.size());
+                            int normalIndex = fixupIndex(Integer.parseInt(parts2[2]), vn.size());
+
+                            verts[i - 1] = vertIndex + vOffset;
+                            Vector v = vn.get(normalIndex);
                             // v.invert(); // Ugh... wtf?
-                            model.getVertex(Integer.parseInt(parts2[0])
-                                    + vOffset - 1).n = v;
+                            model.getVertex(vertIndex + vOffset).n = v;
                             if (parts2[1].length() > 0)
-                                uvs2[i - 1] = Integer.parseInt(parts2[1]);
+                                uvs2[i - 1] = fixupIndex(Integer.parseInt(parts2[1]), uvs.size());
                         }
                     }
                     Triangle t;
                     if (uvs.size() > 0) {
-                        t = new Triangle(model, verts[0] - 1, verts[1] - 1,
-                                verts[2] - 1, uvs.get(uvs2[0] - 1), uvs
-                                        .get(uvs2[1] - 1), uvs.get(uvs2[2] - 1));
+                        t = new Triangle(model, verts[0], verts[1], verts[2],
+                                uvs.get(uvs2[0]), uvs.get(uvs2[1]), uvs.get(uvs2[2]));
                     } else {
-                        t = new Triangle(model, verts[0] - 1, verts[1] - 1,
-                                verts[2] - 1);
+                        t = new Triangle(model, verts[0], verts[1], verts[2]);
                     }
                     model.addTriangle(t);
                     // System.out.println(t.getNormal());
