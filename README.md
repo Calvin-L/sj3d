@@ -3,9 +3,9 @@
 
 This is a 3D software rendering library for Java.
 
-It was largely inspired by the excellent IDX3D Java software renderer, which
-used to be hosted on http://www.idx3d.ch/idx3d/idx3d.html, although that site
-seems dead these days.
+It was largely inspired by Peter Walser's excellent IDX3D Java software
+renderer.  (IDX3D's official website is long-dead, but Alessandro Borges has
+thrown up a [clone of IDX3D on GitHub](https://github.com/AlessandroBorges/IDX3D).)
 
 ## Features
 
