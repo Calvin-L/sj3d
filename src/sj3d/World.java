@@ -18,7 +18,6 @@ public final class World implements MouseListener, MouseMotionListener {
     private final ArrayList<Model> models;
 
     // World variables
-    private int i, l; // for quicker looping
     private int bgcolor;
 
     // Screen variables
@@ -122,8 +121,8 @@ public final class World implements MouseListener, MouseMotionListener {
 
     public void render(Camera c) {
         clearBuffers();
-        for (i = 0, l = models.size(); i < l; i++) {
-            renderer.render(c, models.get(i));
+        for (Model model : models) {
+            renderer.render(c, model);
         }
         producer.update();
 
@@ -144,9 +143,8 @@ public final class World implements MouseListener, MouseMotionListener {
             graphics.drawImage(renderImage, 0, 0, observer);
         }
 
-        Iterator<WorldEventListener> i = listeners.iterator();
-        while (i.hasNext()) {
-            i.next().worldRenderCompleted();
+        for (WorldEventListener listener : listeners) {
+            listener.worldRenderCompleted();
         }
 
     }
