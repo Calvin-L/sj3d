@@ -1,5 +1,10 @@
 package sj3d;
 
+/**
+ * A <code>Camera</code> has a position and looks in a direction.
+ *
+ * @see #getMatrix()
+ */
 public final class Camera extends Object3D {
 
     private Vector lookAtVector, forward, up, right;
