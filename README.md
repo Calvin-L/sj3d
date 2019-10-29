@@ -11,6 +11,7 @@ thrown up a [clone of IDX3D on GitHub](https://github.com/AlessandroBorges/IDX3D
 
  - all Java, no native libraries
  - tiny codebase (suitable for applets and small applications)
+ - no external dependencies beyond the Java standard library
  - pretty fast (for a software renderer)
  - flat shading and smooth (Gouraud) shading
  - single-color and UV texture mapped materials
