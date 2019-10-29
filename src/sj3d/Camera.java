@@ -7,7 +7,7 @@ package sj3d;
  */
 public final class Camera extends Object3D {
 
-    private Vector lookAtVector, forward, up, right;
+    private Vector lookAtVector, forward;
 
     public Camera() {
 
@@ -43,19 +43,14 @@ public final class Camera extends Object3D {
         return forward.clone();
     }
 
-    public Vector getRightVector() {
-        getMatrix();
-        return right.clone();
-    }
-
     public Matrix getMatrix() {
 
         if (!rebuildFlag)
             return transform;
 
         forward = lookAtVector.subtract(new Vector(posX, posY, posZ));
-        up = new Vector(0, 1, 0);
-        right = up.cross(forward);
+        Vector up = new Vector(0, 1, 0);
+        Vector right = up.cross(forward);
         up = right.cross(forward);
 
         forward.normalize();
@@ -72,10 +67,6 @@ public final class Camera extends Object3D {
 
         return transform;
 
-    }
-
-    public Vector getForward() {
-        return forward;
     }
 
 }
