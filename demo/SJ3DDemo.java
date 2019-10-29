@@ -7,7 +7,6 @@ import java.awt.Graphics;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import sj3d.Animator;
 import sj3d.Camera;
 import sj3d.Model;
 import sj3d.RenderSettings;
@@ -16,7 +15,37 @@ import sj3d.Triangle;
 import sj3d.UVCoord;
 import sj3d.World;
 
-class SJ3DDemo {
+class FPSCounter {
+    private static final long FPS_RESOLUTION_MS = 500;
+
+    private boolean initialized = false;
+    private long startTimeMs;
+    private long frameCount = 0;
+
+    private volatile float fps = Float.NaN;
+
+    public float getFPS() {
+        return fps;
+    }
+
+    public void tick() {
+        long nowMs = System.nanoTime() / 1_000_000;
+        if (initialized) {
+            ++frameCount;
+            if (nowMs > startTimeMs + FPS_RESOLUTION_MS) {
+                fps = frameCount * 1000.0f / (nowMs - startTimeMs);
+                startTimeMs = nowMs;
+                frameCount = 0;
+            }
+        } else {
+            startTimeMs = nowMs;
+            initialized = true;
+        }
+    }
+
+}
+
+public class SJ3DDemo {
 
     private static final int W = 720;
     private static final int H = 480;
@@ -67,8 +96,8 @@ class SJ3DDemo {
         final Model model = createModel(texture);
         world.addModel(model);
         world.setBackgroundColor(0x201005);
-        final Animator animator = new Animator(world);
         final Camera camera = world.getDefaultCamera();
+        final FPSCounter fpsCounter = new FPSCounter();
 
         final JPanel panel = new JPanel() {
             @Override
@@ -77,7 +106,13 @@ class SJ3DDemo {
                     g.drawImage(world.getImage(), 0, 0, W, H, null);
                 }
                 g.setColor(Color.WHITE);
-                g.drawString(String.format("FPS: %.2f", animator.getFPS()), 15, 30);
+                float fps = fpsCounter.getFPS();
+                g.drawString(
+                        Float.isNaN(fps)
+                                ? "FPS: ???"
+                                : String.format("FPS: %.2f", fpsCounter.getFPS()),
+                        15,
+                        30);
             }
         };
         panel.setPreferredSize(new Dimension(W, H));
@@ -89,8 +124,6 @@ class SJ3DDemo {
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        animator.start();
-
         long start = System.currentTimeMillis();
 
         while (true) {
@@ -100,11 +133,13 @@ class SJ3DDemo {
             float y = (float)Math.cos((float)delta / 3000f) * 1f + 2.5f;
             float z = (float)Math.sin((float)delta / 1000f) * 3f;
 
-            synchronized (world) { // avoid conflicts with the animator
+            synchronized (world) { // avoid conflicts with the paint thread
                 world.setLighting(x, y, z, 1f, 0.3f);
                 camera.setPos(x, y, z);
                 camera.lookAt(0, 0, 0);
+                world.render();
             }
+            fpsCounter.tick();
             panel.repaint();
             try {
                 Thread.sleep(10);
