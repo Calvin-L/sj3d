@@ -1,5 +1,8 @@
 package sj3d;
 
+import static sj3d.Material.SMOOTH;
+import static sj3d.Material.TEXTURED;
+
 /**
  *
  * A collection of settings for render modes and quality. The default settings
@@ -15,13 +18,6 @@ package sj3d;
  *
  */
 public final class RenderSettings {
-
-    // Constants
-
-    public static final int FLAT = 0;
-    public static final int SMOOTH = 1;
-    public static final int TEXTURED = 2;
-    public static final int SMOOTH_TEXTURED = SMOOTH | TEXTURED;
 
     // Settings
 

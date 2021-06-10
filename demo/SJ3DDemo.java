@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import sj3d.Camera;
+import sj3d.Material;
 import sj3d.Model;
 import sj3d.RenderSettings;
 import sj3d.Texture;
@@ -85,7 +86,7 @@ public class SJ3DDemo {
         }
 
         m.material.texture = tex;
-        m.material.mode = RenderSettings.TEXTURED;
+        m.material.mode = Material.TEXTURED;
         return m;
     }
 

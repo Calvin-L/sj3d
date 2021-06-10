@@ -73,7 +73,7 @@ for (mode, smooth, textured) in [("FLAT", False, False), ("SMOOTH", True, False)
     pv = [(x[1], x[2], x[3]) for x in PER_VERTEX   if mode_matches(smooth, textured, x[0])]
     pp = [(x[1], x[2], x[3]) for x in PER_PIXEL    if mode_matches(smooth, textured, x[0])]
 
-    write("        case RenderSettings.{}: {{".format(mode))
+    write("        case Material.{}: {{".format(mode))
 
     for (t, v, e) in pt:
         write("        final {} {} = {};".format(t, v, e))
