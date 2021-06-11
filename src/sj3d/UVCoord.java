@@ -14,6 +14,11 @@ public final class UVCoord {
         return "UV Coord: (" + u + "," + v + ")";
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof UVCoord && equals((UVCoord)obj);
+    }
+
     public boolean equals(UVCoord uv) {
         return (uv.u == u) && (uv.v == v);
     }
