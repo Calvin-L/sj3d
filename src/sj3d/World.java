@@ -10,7 +10,6 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public final class World implements MouseListener, MouseMotionListener {
 
@@ -34,8 +33,6 @@ public final class World implements MouseListener, MouseMotionListener {
     private Renderer renderer;
     private final RenderSettings settings;
     private final ImageObserver observer;
-
-    private final ArrayList<WorldEventListener> listeners = new ArrayList<WorldEventListener>();
 
     /**
      * Create a world with default render settings
@@ -98,14 +95,6 @@ public final class World implements MouseListener, MouseMotionListener {
         clearBuffers();
     }
 
-    public void addListener(WorldEventListener l) {
-        listeners.add(l);
-    }
-
-    public void removeListner(WorldEventListener l) {
-        listeners.remove(l);
-    }
-
     public void setBackgroundColor(int color) {
         bgcolor = color | settings.mblur;
     }
@@ -141,10 +130,6 @@ public final class World implements MouseListener, MouseMotionListener {
             graphics.drawImage(renderImage, 0, 0, width, height, observer);
         } else {
             graphics.drawImage(renderImage, 0, 0, observer);
-        }
-
-        for (WorldEventListener listener : listeners) {
-            listener.worldRenderCompleted();
         }
 
     }
