@@ -32,7 +32,7 @@ final class Renderer {
 
         // Scale factor to make coordinates more natural
         final float FOV = 1.04719755f, d = 1.0f / ((float) Math.tan(FOV));
-        fudgeScaling = (d / (width / height) + 1) * halfwidth;
+        fudgeScaling = (d / ((float)width / height) + 1) * halfwidth;
 
         // this.vertices = vertices;
         this.pixels = pixels;
