@@ -26,7 +26,6 @@ public final class World implements MouseListener, MouseMotionListener {
     private final Model[] modelbuf; // Models at each pixel point
     private Model mouseOverModel = null; // the model under the mouse
     private int mouseX, mouseY; // mouse coordinates
-    private final ImageProducer producer;
     private final Image renderImage; // the image that gets rendered to
     private final Image finalImage; // the image that gets returned
     private final Graphics2D graphics;
@@ -86,8 +85,8 @@ public final class World implements MouseListener, MouseMotionListener {
         modelbuf = new Model[size];
         renderer = new Renderer(fullWidth, fullHeight, pixels, zbuf, modelbuf,
                 settings);
-        producer = new ImageProducer(fullWidth, fullHeight, pixels, settings);
-        renderImage = Toolkit.getDefaultToolkit().createImage(producer);
+        renderImage = Toolkit.getDefaultToolkit().createImage(
+                new ImageProducer(fullWidth, fullHeight, pixels, settings));
 
         models = new ArrayList<Model>();
 
@@ -113,7 +112,6 @@ public final class World implements MouseListener, MouseMotionListener {
         for (Model model : models) {
             renderer.render(c, model);
         }
-        producer.update();
 
         Model m = getModelAtPoint(mouseX, mouseY);
         if (m != mouseOverModel) {
@@ -126,6 +124,7 @@ public final class World implements MouseListener, MouseMotionListener {
             mouseOverModel = m;
         }
 
+        renderImage.flush();
         if (settings.hasAA()) {
             graphics.drawImage(renderImage, 0, 0, width, height, observer);
         } else {
