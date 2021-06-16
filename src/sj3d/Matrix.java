@@ -1,11 +1,7 @@
 package sj3d;
 
 /**
- *
  * 4x4 transformation matrix implementation
- *
- * @author Calvin Loncaric
- *
  */
 final class Matrix {
 

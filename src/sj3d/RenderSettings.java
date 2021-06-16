@@ -1,7 +1,6 @@
 package sj3d;
 
 /**
- *
  * A collection of settings for render modes and quality. The default settings
  * are as follows:<br>
  * <ul>
@@ -10,9 +9,6 @@ package sj3d;
  * <li>Shadows: off</li>
  * <li>Antialiasing: 1x (none)</li>
  * </ul>
- *
- * @author Calvin Loncaric
- *
  */
 public final class RenderSettings {
 
