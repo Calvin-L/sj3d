@@ -78,7 +78,7 @@ public final class RenderSettings {
      * @return true if motion blur is enabled, or false otherwise
      */
     public boolean hasMotionBlur() {
-        return mblur >> 24 < 0xFF;
+        return (mblur >>> 24) < 0xFF;
     }
 
 }
