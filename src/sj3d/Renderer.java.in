@@ -88,6 +88,7 @@ final class Renderer {
 
             final Triangle t = object.getTriangle(i);
             final Vector n = t.getNormal();
+            object.getMatrix().multiplyDirection(n, n); // put normal into world coords
             final float cos = n.dot(camera.getForwardVector());
 
             // back-face culling: only render one side of triangle

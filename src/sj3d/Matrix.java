@@ -215,6 +215,26 @@ final class Matrix {
                 (data[2][0] * v.x) + (data[2][1] * v.y) + (data[2][2] * v.z) + (data[2][3]));
     }
 
+    /**
+     * Multiply this matrix by a vector, ignoring translation.  This method is
+     * useful if this matrix represents a conversion between coordinate spaces
+     * and <code>v</code> is a normalized vector representing a
+     * <i>direction</i> in space rather than a <i>position</i> in space.
+     *
+     * @param v
+     *            the vector
+     * @param out
+     *            overwritten with the output (may be the same object as
+     *            <code>v</code>)
+     */
+    public void multiplyDirection(final Vector v, Vector out) {
+        out.set(
+                (data[0][0] * v.x) + (data[0][1] * v.y) + (data[0][2] * v.z),
+                (data[1][0] * v.x) + (data[1][1] * v.y) + (data[1][2] * v.z),
+                (data[2][0] * v.x) + (data[2][1] * v.y) + (data[2][2] * v.z));
+        out.normalize();
+    }
+
     private String pad(String s) {
         StringBuilder builder = new StringBuilder(s);
         for (int i = s.length(); i < 14; i++) {
