@@ -32,6 +32,7 @@ public class Model extends Object3D {
         triangles = blueprint.triangles;
         currentFrame = 0;
         numFrames = frames.size();
+        material = blueprint.material;
     }
 
     public Vertex[] getVertices() {
