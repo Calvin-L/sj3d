@@ -37,12 +37,12 @@ public final class Camera {
     }
 
     public Vector getLookVector() {
-        return lookAtVector.clone();
+        return lookAtVector;
     }
 
     public Vector getForwardVector() {
         getMatrix();
-        return forward.clone();
+        return forward;
     }
 
     public Matrix getMatrix() {

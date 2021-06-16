@@ -53,11 +53,6 @@ public final class Vector {
     }
 
     @Override
-    public Vector clone() {
-        return new Vector(x, y, z);
-    }
-
-    @Override
     public String toString() {
         return "Vector (" + x + ", " + y + ", " + z + ")";
     }

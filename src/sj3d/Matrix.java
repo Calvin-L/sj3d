@@ -7,7 +7,7 @@ package sj3d;
  * @author Calvin Loncaric
  *
  */
-final class Matrix implements Cloneable {
+final class Matrix {
 
     public final float[][] data;
 
@@ -98,7 +98,7 @@ final class Matrix implements Cloneable {
      * @return the resulting matrix
      */
     public Matrix multiply(Matrix m) {
-        Matrix result = this.clone();
+        Matrix result = new Matrix();
         for (int i = 0; i < 4; i++) {
             result.data[i][0] = (data[i][0] * m.data[0][0])
                     + (data[i][1] * m.data[1][0]) + (data[i][2] * m.data[2][0])
@@ -247,19 +247,6 @@ final class Matrix implements Cloneable {
                 + (data[2][2] * v.z) + (data[2][3]); // * v.w);
         final Vertex result = new Vertex(x, y, z);
         return result;
-    }
-
-    @Override
-    public Matrix clone() {
-
-        final float[][] m = {
-                { data[0][0], data[0][1], data[0][2], data[0][3] },
-                { data[1][0], data[1][1], data[1][2], data[1][3] },
-                { data[2][0], data[2][1], data[2][2], data[2][3] },
-                { data[3][0], data[3][1], data[3][2], data[3][3] } };
-
-        return new Matrix(m);
-
     }
 
     private String pad(String s) {

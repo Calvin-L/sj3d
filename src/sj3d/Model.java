@@ -2,7 +2,7 @@ package sj3d;
 
 import java.util.ArrayList;
 
-public class Model extends Object3D implements Cloneable {
+public class Model extends Object3D {
 
     protected final ArrayList<ArrayList<Vertex>> frames;
     protected final ArrayList<Triangle> triangles;
@@ -97,31 +97,6 @@ public class Model extends Object3D implements Cloneable {
 
     public int numTriangles() {
         return triangles.size();
-    }
-
-    @Override
-    public Model clone() {
-        Model m;
-        m = new Model();
-
-        // Add vertices
-        for (int i = 0; i < frames.size(); i++) {
-            ArrayList<Vertex> frame = frames.get(i);
-            ArrayList<Vertex> newFrame = new ArrayList<Vertex>(frame.size());
-            for (int j = 0; j < frame.size(); j++) {
-                newFrame.add(frame.get(j).clone());
-            }
-            m.frames.add(newFrame);
-        }
-
-        // Add triangles
-        for (int i = 0; i < triangles.size(); i++) {
-            m.addTriangle(triangles.get(i));
-        }
-
-        m.material = material;
-
-        return m;
     }
 
 }

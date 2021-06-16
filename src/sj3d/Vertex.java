@@ -1,6 +1,6 @@
 package sj3d;
 
-public final class Vertex implements Cloneable {
+public final class Vertex {
 
     public final float x, y, z;
     public Vector n;
@@ -32,10 +32,6 @@ public final class Vertex implements Cloneable {
 
     public float getZ() {
         return z;
-    }
-
-    public Vertex clone() {
-        return new Vertex(x, y, z);
     }
 
     public String toString() {
