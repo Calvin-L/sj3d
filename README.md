@@ -68,7 +68,6 @@ source of information on how to use this stuff is probably the demo app.)
 
  - API design does not prevent you from misunderstanding it and causing
    exceptions in the rendering engine (null pointer, array out of bounds, etc)
- - `Matrix.multiplySelf` is broken
  - documentation is slim to nonexistant
 
 ## Why?

@@ -15,18 +15,27 @@ final class Matrix {
      * Create a new identity matrix.
      */
     public Matrix() {
-        data = new float[][] { { 1, 0, 0, 0 }, { 0, 1, 0, 0 }, { 0, 0, 1, 0 },
-                { 0, 0, 0, 1 } };
+        data = new float[][] {
+                { 1, 0, 0, 0 },
+                { 0, 1, 0, 0 },
+                { 0, 0, 1, 0 },
+                { 0, 0, 0, 1 },
+        };
     }
 
     /**
-     * Create a new matrix from the specified data.
+     * Create a new matrix by copying the given matrix.
      *
-     * @param d
-     *            the data to use (a 4x4 float array)
+     * @param m
+     *            the matrix to copy
      */
-    public Matrix(float[][] d) {
-        data = d;
+    public Matrix(Matrix m) {
+        data = new float[][] {
+                { m.data[0][0], m.data[0][1], m.data[0][2], m.data[0][3] },
+                { m.data[1][0], m.data[1][1], m.data[1][2], m.data[1][3] },
+                { m.data[2][0], m.data[2][1], m.data[2][2], m.data[2][3] },
+                { m.data[3][0], m.data[3][1], m.data[3][2], m.data[3][3] },
+        };
     }
 
     /**
@@ -39,30 +48,17 @@ final class Matrix {
      *   [ m20 m21 m22 m23 ]
      *   [ m30 m31 m32 m33 ]
      * </pre>
-     *
-     * @param m00
-     * @param m01
-     * @param m02
-     * @param m03
-     * @param m10
-     * @param m11
-     * @param m12
-     * @param m13
-     * @param m20
-     * @param m21
-     * @param m22
-     * @param m23
-     * @param m30
-     * @param m31
-     * @param m32
-     * @param m33
      */
-    public Matrix(float m00, float m01, float m02, float m03, float m10,
-            float m11, float m12, float m13, float m20, float m21, float m22,
-            float m23, float m30, float m31, float m32, float m33) {
-        float[][] d = { { m00, m01, m02, m03 }, { m10, m11, m12, m13 },
-                { m20, m21, m22, m23 }, { m30, m31, m32, m33 } };
-        data = d;
+    public Matrix(float m00, float m01, float m02, float m03,
+                  float m10, float m11, float m12, float m13,
+                  float m20, float m21, float m22, float m23,
+                  float m30, float m31, float m32, float m33) {
+        data = new float[][] {
+                { m00, m01, m02, m03 },
+                { m10, m11, m12, m13 },
+                { m20, m21, m22, m23 },
+                { m30, m31, m32, m33 },
+        };
     }
 
     /**
@@ -98,21 +94,8 @@ final class Matrix {
      * @return the resulting matrix
      */
     public Matrix multiply(Matrix m) {
-        Matrix result = new Matrix();
-        for (int i = 0; i < 4; i++) {
-            result.data[i][0] = (data[i][0] * m.data[0][0])
-                    + (data[i][1] * m.data[1][0]) + (data[i][2] * m.data[2][0])
-                    + (data[i][3] * m.data[3][0]);
-            result.data[i][1] = (data[i][0] * m.data[0][1])
-                    + (data[i][1] * m.data[1][1]) + (data[i][2] * m.data[2][1])
-                    + (data[i][3] * m.data[3][1]);
-            result.data[i][2] = (data[i][0] * m.data[0][2])
-                    + (data[i][1] * m.data[1][2]) + (data[i][2] * m.data[2][2])
-                    + (data[i][3] * m.data[3][2]);
-            result.data[i][3] = (data[i][0] * m.data[0][3])
-                    + (data[i][1] * m.data[1][3]) + (data[i][2] * m.data[2][3])
-                    + (data[i][3] * m.data[3][3]);
-        }
+        Matrix result = new Matrix(this);
+        result.multiplySelf(m);
         return result;
     }
 
@@ -124,19 +107,30 @@ final class Matrix {
      *            the matrix to multiply by
      */
     public void multiplySelf(final Matrix m) {
+        assert m != this;
+
         for (int i = 0; i < 4; i++) {
-            data[i][0] = (data[i][0] * m.data[0][0])
-                    + (data[i][1] * m.data[1][0]) + (data[i][2] * m.data[2][0])
-                    + (data[i][3] * m.data[3][0]);
-            data[i][1] = (data[i][0] * m.data[0][1])
-                    + (data[i][1] * m.data[1][1]) + (data[i][2] * m.data[2][1])
-                    + (data[i][3] * m.data[3][1]);
-            data[i][2] = (data[i][0] * m.data[0][2])
-                    + (data[i][1] * m.data[1][2]) + (data[i][2] * m.data[2][2])
-                    + (data[i][3] * m.data[3][2]);
-            data[i][3] = (data[i][0] * m.data[0][3])
-                    + (data[i][1] * m.data[1][3]) + (data[i][2] * m.data[2][3])
-                    + (data[i][3] * m.data[3][3]);
+            float x0 = (data[i][0] * m.data[0][0])
+                     + (data[i][1] * m.data[1][0])
+                     + (data[i][2] * m.data[2][0])
+                     + (data[i][3] * m.data[3][0]);
+            float x1 = (data[i][0] * m.data[0][1])
+                     + (data[i][1] * m.data[1][1])
+                     + (data[i][2] * m.data[2][1])
+                     + (data[i][3] * m.data[3][1]);
+            float x2 = (data[i][0] * m.data[0][2])
+                     + (data[i][1] * m.data[1][2])
+                     + (data[i][2] * m.data[2][2])
+                     + (data[i][3] * m.data[3][2]);
+            float x3 = (data[i][0] * m.data[0][3])
+                     + (data[i][1] * m.data[1][3])
+                     + (data[i][2] * m.data[2][3])
+                     + (data[i][3] * m.data[3][3]);
+
+            data[i][0] = x0;
+            data[i][1] = x1;
+            data[i][2] = x2;
+            data[i][3] = x3;
         }
     }
 
@@ -222,37 +216,25 @@ final class Matrix {
     }
 
     public Vector multiply(final Vector v) {
-        final Vector result = new Vector();
-        result.x = data[0][0] * v.x + data[0][1] * v.y + data[0][2] * v.z;// +
-                                                                            // data[0][3]
-                                                                            // *
-                                                                            // v.w;
-        result.y = data[1][0] * v.x + data[1][1] * v.y + data[1][2] * v.z;// +
-                                                                            // data[1][3]
-                                                                            // *
-                                                                            // v.w;
-        result.z = data[2][0] * v.x + data[2][1] * v.y + data[2][2] * v.z;// +
-                                                                            // data[2][3]
-                                                                            // *
-                                                                            // v.w;
-        return result;
+        return new Vector(
+                (data[0][0] * v.x) + (data[0][1] * v.y) + (data[0][2] * v.z) + (data[0][3]),
+                (data[1][0] * v.x) + (data[1][1] * v.y) + (data[1][2] * v.z) + (data[1][3]),
+                (data[2][0] * v.x) + (data[2][1] * v.y) + (data[2][2] * v.z) + (data[2][3]));
     }
 
     public Vertex multiply(final Vertex v) {
-        final float x = (data[0][0] * v.x) + (data[0][1] * v.y)
-                + (data[0][2] * v.z) + (data[0][3]); // * v.w);
-        final float y = (data[1][0] * v.x) + (data[1][1] * v.y)
-                + (data[1][2] * v.z) + (data[1][3]); // * v.w);
-        final float z = (data[2][0] * v.x) + (data[2][1] * v.y)
-                + (data[2][2] * v.z) + (data[2][3]); // * v.w);
-        final Vertex result = new Vertex(x, y, z);
-        return result;
+        return new Vertex(
+            (data[0][0] * v.x) + (data[0][1] * v.y) + (data[0][2] * v.z) + (data[0][3]),
+            (data[1][0] * v.x) + (data[1][1] * v.y) + (data[1][2] * v.z) + (data[1][3]),
+            (data[2][0] * v.x) + (data[2][1] * v.y) + (data[2][2] * v.z) + (data[2][3]));
     }
 
     private String pad(String s) {
+        StringBuilder builder = new StringBuilder(s);
         for (int i = s.length(); i < 14; i++) {
-            s += ' ';
+            builder.append(' ');
         }
+        s = builder.toString();
         return s;
     }
 
