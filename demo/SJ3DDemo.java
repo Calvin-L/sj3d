@@ -20,7 +20,7 @@ class FPSCounter {
     private static final long FPS_RESOLUTION_MS = 500;
 
     private boolean initialized = false;
-    private long startTimeMs;
+    private long startTimeNs;
     private long frameCount = 0;
 
     private volatile float fps = Float.NaN;
@@ -30,16 +30,16 @@ class FPSCounter {
     }
 
     public void tick() {
-        long nowMs = System.nanoTime() / 1_000_000;
+        long nowNs = System.nanoTime();
         if (initialized) {
             ++frameCount;
-            if (nowMs > startTimeMs + FPS_RESOLUTION_MS) {
-                fps = frameCount * 1000.0f / (nowMs - startTimeMs);
-                startTimeMs = nowMs;
+            if (nowNs - startTimeNs > FPS_RESOLUTION_MS * 1_000_000) {
+                fps = frameCount * (float)Math.pow(10, 9) / (nowNs - startTimeNs);
+                startTimeNs = nowNs;
                 frameCount = 0;
             }
         } else {
-            startTimeMs = nowMs;
+            startTimeNs = nowNs;
             initialized = true;
         }
     }
