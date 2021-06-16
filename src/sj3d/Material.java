@@ -24,4 +24,34 @@ public final class Material {
     public Texture texture;
     public int color = 0xaaaaaa;
 
+    // Simple constructors
+
+    public static Material flat(int color) {
+        Material m = new Material();
+        m.mode = FLAT;
+        m.color = color;
+        return m;
+    }
+
+    public static Material smooth(int color) {
+        Material m = new Material();
+        m.mode = SMOOTH;
+        m.color = color;
+        return m;
+    }
+
+    public static Material flatTextured(Texture texture) {
+        Material m = new Material();
+        m.mode = TEXTURED;
+        m.texture = texture;
+        return m;
+    }
+
+    public static Material smoothTextured(Texture texture) {
+        Material m = new Material();
+        m.mode = SMOOTH_TEXTURED;
+        m.texture = texture;
+        return m;
+    }
+
 }

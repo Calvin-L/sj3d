@@ -67,6 +67,8 @@ public class SJ3DDemo {
 
     private static Model createModel(Texture tex) {
         final Model m = new Model();
+        m.material = Material.flatTextured(tex);
+
         m.addFrame();
 
         UVCoord uv1 = new UVCoord(0f, 0f);
@@ -85,8 +87,6 @@ public class SJ3DDemo {
             i += 3;
         }
 
-        m.material.texture = tex;
-        m.material.mode = Material.TEXTURED;
         return m;
     }
 
