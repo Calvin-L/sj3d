@@ -4,46 +4,38 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 
-public final class World implements MouseListener, MouseMotionListener {
+/**
+ * A top-level container for everything that goes into a 3D scene.
+ *
+ * In particular:
+ * <ul>
+ *   <li>Models that get rendered</li>
+ *   <li>A camera for the view perspective</li>
+ *   <li>Render settings</li>
+ * </ul>
+ *
+ * @see #render()
+ * @see #getImage()
+ */
+public final class World {
 
     // Triangles & Vertices
     private final ArrayList<Model> models;
 
-    // World variables
-    private int bgcolor;
-
     // Screen variables
+    private final Camera camera; // view perspective
     private final int width, height;
-    private int[] pixels; // color values of each pixel
-    private float[] zbuf; // depth of object at each pixel
+    private final int[] pixels; // color values of each pixel
+    private final float[] zbuf; // depth of object at each pixel
     private final Model[] modelbuf; // Models at each pixel point
-    private Model mouseOverModel = null; // the model under the mouse
-    private int mouseX, mouseY; // mouse coordinates
     private final Image renderImage; // the image that gets rendered to
     private final Image finalImage; // the image that gets returned
     private final Graphics2D graphics;
-    private Renderer renderer;
+    private final Renderer renderer;
     private final RenderSettings settings;
-    private final ImageObserver observer;
-
-    /**
-     * Create a world with default render settings
-     *
-     * @param w
-     *            the width of the screen
-     * @param h
-     *            the height of the screen
-     */
-    public World(int w, int h, ImageObserver observer) {
-        this(w, h, observer, new RenderSettings());
-    }
 
     /**
      * Create a world with custom render settings
@@ -55,22 +47,15 @@ public final class World implements MouseListener, MouseMotionListener {
      * @param settings
      *            the <code>RenderSettings</code> object to use
      */
-    public World(int w, int h, ImageObserver observer, RenderSettings settings) {
+    public World(int w, int h, RenderSettings settings) {
         width = w;
         height = h;
         this.settings = settings;
-        this.observer = observer;
 
         final int fullWidth = (int) (width * settings.aaFactor);
         final int fullHeight = (int) (height * settings.aaFactor);
 
-        if (settings.hasMotionBlur()) {
-            finalImage = new BufferedImage(width, height,
-                    BufferedImage.TYPE_INT_ARGB);
-        } else {
-            finalImage = new BufferedImage(width, height,
-                    BufferedImage.TYPE_INT_RGB);
-        }
+        finalImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         graphics = ((BufferedImage) finalImage).createGraphics();
 
         if (settings.hasAA()) {
@@ -88,114 +73,110 @@ public final class World implements MouseListener, MouseMotionListener {
         renderImage = Toolkit.getDefaultToolkit().createImage(
                 new ImageProducer(fullWidth, fullHeight, pixels, settings));
 
-        models = new ArrayList<Model>();
-
-        setBackgroundColor(0);
-        clearBuffers();
+        models = new ArrayList<>();
+        camera = new Camera();
     }
 
-    public void setBackgroundColor(int color) {
-        bgcolor = color | settings.mblur;
-    }
-
+    /**
+     * Get the model at the given screen coordinates in the most recently
+     * rendered image.  If there are multiple models at the given coordinates,
+     * the one closest to the camera is returned.
+     *
+     * <p>Always returns <code>null</code> before the first call to
+     * {@link #render()}.
+     *
+     * @param x
+     *            the x-coordinate
+     * @param y
+     *            the y-coordinate
+     * @return the model at the given coordinates, or <code>null</code>
+     */
     public Model getModelAtPoint(final int x, final int y) {
         return modelbuf[(int) ((float) y * settings.aaFactor * width
                 * settings.aaFactor + (float) x * settings.aaFactor)];
     }
 
+    /**
+     * Render the scene as a 2D image.
+     *
+     * @see #getImage()
+     */
     public void render() {
-        render(defaultCamera);
-    }
-
-    public void render(Camera c) {
         clearBuffers();
         for (Model model : models) {
-            renderer.render(c, model);
-        }
-
-        Model m = getModelAtPoint(mouseX, mouseY);
-        if (m != mouseOverModel) {
-            if (mouseOverModel != null) {
-                mouseOverModel.onMouseOut(mouseX, mouseY);
-            }
-            if (m != null) {
-                m.onMouseOver(mouseX, mouseY);
-            }
-            mouseOverModel = m;
+            renderer.render(camera, model);
         }
 
         renderImage.flush();
         if (settings.hasAA()) {
-            graphics.drawImage(renderImage, 0, 0, width, height, observer);
+            graphics.drawImage(renderImage, 0, 0, width, height, null);
         } else {
-            graphics.drawImage(renderImage, 0, 0, observer);
+            graphics.drawImage(renderImage, 0, 0, null);
         }
-
     }
 
+    /**
+     * Get the rendered image.
+     *
+     * <p>The image contents are unspecified before the first call to
+     * {@link #render()}.
+     *
+     * <p>The {@link #render()} method modifies the image in-place.  If you
+     * need to retain a copy of a particular frame, you must copy the returned
+     * image.
+     *
+     * @return the most recently rendered image
+     * @see #render()
+     */
     public Image getImage() {
         return finalImage;
     }
 
-    // Lighting
-
-    public void setLighting(float x, float y, float z, float intensity,
-            float ambient) {
+    /**
+     * Set the lighting.  The x, y, and z arguments define the light direction
+     * (not the light position).  The light source will be infinitely far
+     * away, shining in the given direction.
+     *
+     * @param x
+     *            the x-component of the light direction
+     * @param y
+     *            the y-component of the light direction
+     * @param z
+     *            the z-component of the light direction
+     * @param intensity
+     *            the intensity of the light (usually 1)
+     * @param ambient
+     *            the intensity of the ambient light (usually 1)
+     */
+    public void setLighting(float x, float y, float z, float intensity, float ambient) {
         renderer.setLighting(new Vector(x, y, z), intensity, ambient);
     }
 
-    // Camera stuff
-
-    private Camera defaultCamera = new Camera(3, 0, 0, 0, 0, 0);
-
-    public void setDefaultCamera(Camera c) {
-        defaultCamera = c;
+    /**
+     * Get the scene camera.  There is no corresponding <code>setCamera</code>
+     * call; modify the camera in-place between calls to {@link #render()} to
+     * achieve camera motion.
+     *
+     * @return the camera
+     */
+    public Camera getCamera() {
+        return camera;
     }
 
-    public Camera getDefaultCamera() {
-        return defaultCamera;
-    }
-
-    // Models
-
+    /**
+     * Add the given model to the scene
+     *
+     * @param m
+     *            the model to add
+     */
     public void addModel(Model m) {
         models.add(m);
     }
 
-    // Buffer Operations
-
     private void clearBuffers() {
-        Util.fill(pixels, bgcolor);
+        Util.fill(pixels, settings.bgcolor | settings.mblur);
         Util.fill(zbuf, 0);
         Util.fill(modelbuf, null);
-    }
-
-    public void mouseClicked(MouseEvent e) {
-        if (mouseOverModel != null) {
-            mouseOverModel.onClick(e.getX(), e.getY());
-        }
-    }
-
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    public void mouseExited(MouseEvent e) {
-    }
-
-    public void mousePressed(MouseEvent e) {
-    }
-
-    public void mouseReleased(MouseEvent e) {
-    }
-
-    public void mouseDragged(MouseEvent e) {
-        mouseX = e.getX();
-        mouseY = e.getY();
-    }
-
-    public void mouseMoved(MouseEvent e) {
-        mouseX = e.getX();
-        mouseY = e.getY();
     }
 
 }

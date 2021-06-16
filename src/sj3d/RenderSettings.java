@@ -19,6 +19,11 @@ public final class RenderSettings {
     // Settings
 
     /**
+     * The background color
+     */
+    int bgcolor = 0;
+
+    /**
      * The amount of anti-aliasing
      */
     float aaFactor = 1;
@@ -29,6 +34,10 @@ public final class RenderSettings {
     int mblur = 0xFF000000;
 
     // Methods
+
+    public void setBackgroundColor(int color) {
+        bgcolor = color & 0x00FFFFFF;
+    }
 
     /**
      * Set the amount of anti-aliasing. Common values are 1 (no anti-aliasing)

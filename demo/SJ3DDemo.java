@@ -92,12 +92,14 @@ public class SJ3DDemo {
 
     public static void main(String[] args) {
 
-        final World world = new World(W, H, null);
+        final RenderSettings settings = new RenderSettings();
+        settings.setBackgroundColor(0x201005);
+
+        final World world = new World(W, H, settings);
         final Texture texture = createTexture();
         final Model model = createModel(texture);
         world.addModel(model);
-        world.setBackgroundColor(0x201005);
-        final Camera camera = world.getDefaultCamera();
+        final Camera camera = world.getCamera();
         final FPSCounter fpsCounter = new FPSCounter();
 
         final JPanel panel = new JPanel() {

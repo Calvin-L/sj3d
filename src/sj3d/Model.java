@@ -124,14 +124,4 @@ public class Model extends Object3D implements Cloneable {
         return m;
     }
 
-    // Events
-    public void onMouseOver(int x, int y) {
-    }
-
-    public void onMouseOut(int x, int y) {
-    }
-
-    public void onClick(int x, int y) {
-    }
-
 }
