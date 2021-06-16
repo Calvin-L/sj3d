@@ -241,6 +241,8 @@ final class Matrix {
 
     public void setToRotationMatrix(final float rotX, final float rotY, final float rotZ) {
 
+        // Math from: www.songho.ca/opengl/gl_anglestoaxes.html
+
         final float s1 = (float) Math.sin(rotX);
         final float s2 = (float) Math.sin(rotY);
         final float s3 = (float) Math.sin(rotZ);
@@ -252,14 +254,14 @@ final class Matrix {
         resetToIdentity();
 
         data[0][0] = c2 * c3;
-        data[0][1] = c2 * s3;
-        data[0][2] = -s2;
+        data[0][1] = -c2 * s3;
+        data[0][2] = s2;
 
-        data[1][0] = s1 * s2 * c3 - c1 * s3;
-        data[1][1] = s1 * s2 * s3 + c1 * c3;
-        data[1][2] = s1 * c2;
+        data[1][0] = s1 * s2 * c3 + c1 * s3;
+        data[1][1] = -s1 * s2 * s3 + c1 * c3;
+        data[1][2] = -s1 * c2;
 
-        data[2][0] = c1 * s2 * c3 - s1 * s3;
+        data[2][0] = -c1 * s2 * c3 + s1 * s3;
         data[2][1] = c1 * s2 * s3 + s1 * c3;
         data[2][2] = c1 * c2;
 
