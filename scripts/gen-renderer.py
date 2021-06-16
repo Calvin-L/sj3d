@@ -13,8 +13,7 @@ ALWAYS = None
 PER_TRIANGLE = [
     (ALWAYS, "float", "Kd", "lightIntensity * material.diffuseValue"),
     (ALWAYS, "float", "Ka", "lightAmbient * material.ambientValue"),
-    (FLAT,   "Vector", "n", "t.getNormal()"),
-    (FLAT,   "float", "lightAmt", "Math.max(n.dot(lightVector), 0) * (Kd - Ka) + Ka"),
+    (FLAT,   "float", "lightAmt", "Math.max(normal.dot(lightVector), 0) * (Kd - Ka) + Ka"),
     (UNTEXTURED, "int", "red", "(material.color >> 16) & 0xff"),
     (UNTEXTURED, "int", "green", "(material.color >> 8) & 0xff"),
     (UNTEXTURED, "int", "blue", "(material.color) & 0xff"),

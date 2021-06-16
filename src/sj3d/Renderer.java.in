@@ -82,11 +82,12 @@ final class Renderer {
         for (int i = 0, l = object.numTriangles(); i < l; i++) {
 
             final Triangle t = object.getTriangle(i);
-            final float cos = t.getNormal().dot(camera.getForwardVector());
+            final Vector n = t.getNormal();
+            final float cos = n.dot(camera.getForwardVector());
 
             // back-face culling: only render one side of triangle
             if (cos <= 0.001) {
-                renderTriangle(object, t, material);
+                renderTriangle(object, t, n, material);
             }
 
         }
@@ -125,7 +126,7 @@ final class Renderer {
     /**
      * Render a specific triangle.
      */
-    private void renderTriangle(final Model model, final Triangle t, final Material material) {
+    private void renderTriangle(final Model model, final Triangle t, final Vector normal, final Material material) {
 
         // Vertices & vertex texture coordinates
         Vertex a = t.getVertexA();
