@@ -38,7 +38,7 @@ for a in ["u", "v"]:
 PER_PIXEL = [
     ([SMOOTH, UNTEXTURED], "int", "color", "(int) (blue * lightAmt) | (((int) (green * lightAmt)) << 8) | (((int) (red * lightAmt)) << 16)"),
     (TEXTURED, "float", "recip", "1/z"),
-    (TEXTURED, "int", "tex_index", "((int) (texv * recip * texYMax)) * texture.width + (int) (texu * recip * texXMax)"),
+    (TEXTURED, "int", "tex_index", "((int) (Util.clamp(texv * recip, 0f, 1f) * texYMax)) * texture.width + (int) (Util.clamp(texu * recip, 0f, 1f) * texXMax)"),
     (TEXTURED, "int", "base_color", "texture.pixels[tex_index]"),
     (TEXTURED, "int", "red", "(base_color >> 16) & 0xff"),
     (TEXTURED, "int", "green", "(base_color >> 8) & 0xff"),
