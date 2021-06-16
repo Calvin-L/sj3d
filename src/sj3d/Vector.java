@@ -16,6 +16,12 @@ public final class Vector {
         z = _z;
     }
 
+    public void set(float x, float y, float z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
     public void normalize() {
         float l = length();
         x /= l;
@@ -32,24 +38,19 @@ public final class Vector {
         return (float) Math.sqrt(x * x + y * y + z * z);
     }
 
-    public Vector cross(Vector v) {
-        float i = (y * v.z) - (z * v.y);
-        float j = (z * v.x) - (x * v.z);
-        float k = (x * v.y) - (y * v.x);
-        return new Vector(i, j, k);
+    public void setToCrossProduct(Vector v1, Vector v2) {
+        setToCrossProduct(
+                v1.x, v1.y, v1.z,
+                v2.x, v2.y, v2.z);
+    }
+
+    public void setToCrossProduct(float v1x, float v1y, float v1z, float v2x, float v2y, float v2z) {
+        set((v1y * v2z) - (v1z * v2y), (v1z * v2x) - (v1x * v2z), (v1x * v2y) - (v1y * v2x));
     }
 
     // Dot product: will only work with normalized vectors!
     public float dot(Vector v) {
         return (x * v.x) + (y * v.y) + (z * v.z);
-    }
-
-    public Vector add(Vector v) {
-        return new Vector(x + v.x, y + v.y, z + v.z);
-    }
-
-    public Vector subtract(Vector v) {
-        return new Vector(x - v.x, y - v.y, z - v.z);
     }
 
     @Override

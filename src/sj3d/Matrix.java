@@ -58,7 +58,8 @@ final class Matrix {
     }
 
     /**
-     * Create a new matrix from the specified vectors.
+     * Set this matrix to a coordinate space transformation using the
+     * specified vectors.
      *
      * @param right
      *            the right-pointing vector in the new coordinate space
@@ -67,8 +68,7 @@ final class Matrix {
      * @param forward
      *            the forward-pointing vector in the new coordinate space
      */
-    public Matrix(Vector right, Vector up, Vector forward) {
-        data = new float[4][4];
+    public void setBasisVectors(Vector right, Vector up, Vector forward) {
         data[0][0] = right.x;
         data[1][0] = right.y;
         data[2][0] = right.z;
@@ -78,21 +78,18 @@ final class Matrix {
         data[0][2] = forward.x;
         data[1][2] = forward.y;
         data[2][2] = forward.z;
+        data[0][3] = 0.0f;
+        data[1][3] = 0.0f;
+        data[2][3] = 0.0f;
+        Util.fill(data[3], 0.0f);
         data[3][3] = 1;
     }
 
-    /**
-     * Get a new matrix that is the result of multiplying this matrix by matrix
-     * m, in that order.
-     *
-     * @param m
-     *            the matrix to multiply by
-     * @return the resulting matrix
-     */
-    public Matrix multiply(Matrix m) {
-        Matrix result = new Matrix(this);
-        result.multiplySelf(m);
-        return result;
+    public void resetToIdentity() {
+        for (int i = 0; i < 4; ++i) {
+            Util.fill(data[i], 0.0f);
+            data[i][i] = 1;
+        }
     }
 
     /**
@@ -211,18 +208,11 @@ final class Matrix {
 
     }
 
-    public Vector multiply(final Vector v) {
-        return new Vector(
+    public void multiply(final Vertex v, Vector out) {
+        out.set(
                 (data[0][0] * v.x) + (data[0][1] * v.y) + (data[0][2] * v.z) + (data[0][3]),
                 (data[1][0] * v.x) + (data[1][1] * v.y) + (data[1][2] * v.z) + (data[1][3]),
                 (data[2][0] * v.x) + (data[2][1] * v.y) + (data[2][2] * v.z) + (data[2][3]));
-    }
-
-    public Vertex multiply(final Vertex v) {
-        return new Vertex(
-            (data[0][0] * v.x) + (data[0][1] * v.y) + (data[0][2] * v.z) + (data[0][3]),
-            (data[1][0] * v.x) + (data[1][1] * v.y) + (data[1][2] * v.z) + (data[1][3]),
-            (data[2][0] * v.x) + (data[2][1] * v.y) + (data[2][2] * v.z) + (data[2][3]));
     }
 
     private String pad(String s) {
@@ -249,8 +239,7 @@ final class Matrix {
                               pad(data[3][2] + ",") + pad(data[3][3] + "");
     }
 
-    public static Matrix rotationMatrix(final float rotX, final float rotY,
-            final float rotZ) {
+    public void setToRotationMatrix(final float rotX, final float rotY, final float rotZ) {
 
         final float s1 = (float) Math.sin(rotX);
         final float s2 = (float) Math.sin(rotY);
@@ -260,21 +249,35 @@ final class Matrix {
         final float c2 = (float) Math.cos(rotY);
         final float c3 = (float) Math.cos(rotZ);
 
-        return new Matrix(c2 * c3, c2 * s3, -s2, 0, s1 * s2 * c3 - c1 * s3, s1
-                * s2 * s3 + c1 * c3, s1 * c2, 0, c1 * s2 * c3 - s1 * s3, c1
-                * s2 * s3 + s1 * c3, c1 * c2, 0, 0, 0, 0, 1);
+        resetToIdentity();
+
+        data[0][0] = c2 * c3;
+        data[0][1] = c2 * s3;
+        data[0][2] = -s2;
+
+        data[1][0] = s1 * s2 * c3 - c1 * s3;
+        data[1][1] = s1 * s2 * s3 + c1 * c3;
+        data[1][2] = s1 * c2;
+
+        data[2][0] = c1 * s2 * c3 - s1 * s3;
+        data[2][1] = c1 * s2 * s3 + s1 * c3;
+        data[2][2] = c1 * c2;
 
     }
 
-    public static Matrix scaleMatrix(float sx, float sy, float sz) {
+    public void multiplySelfByScaleMatrix(float sx, float sy, float sz) {
 
-        return new Matrix(sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1);
+        data[0][0] *= sx;
+        data[1][0] *= sx;
+        data[2][0] *= sx;
 
-    }
+        data[0][1] *= sy;
+        data[1][1] *= sy;
+        data[2][1] *= sy;
 
-    public static Matrix identity() {
-
-        return new Matrix();
+        data[0][2] *= sz;
+        data[1][2] *= sz;
+        data[2][2] *= sz;
 
     }
 

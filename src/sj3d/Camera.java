@@ -8,9 +8,12 @@ package sj3d;
 public final class Camera {
 
     private float posX, posY, posZ;
-    private Vector lookAtVector, forward;
+    private final Vector lookAtVector;
+    private final Vector forward = new Vector();
+    private final Vector up = new Vector();
+    private final Vector right = new Vector();
     private boolean rebuildFlag = true;
-    private Matrix transform = Matrix.identity();
+    private final Matrix transform = new Matrix();
 
     public Camera() {
         posX = posY = 0;
@@ -33,7 +36,7 @@ public final class Camera {
     }
 
     public void lookAt(float x, float y, float z) {
-        lookAtVector = new Vector(x, y, z);
+        lookAtVector.set(x, y, z);
     }
 
     public Vector getLookVector() {
@@ -47,16 +50,20 @@ public final class Camera {
 
     public Matrix getMatrix() {
         if (rebuildFlag) {
-            forward = lookAtVector.subtract(new Vector(posX, posY, posZ));
-            Vector up = new Vector(0, 1, 0);
-            Vector right = up.cross(forward);
-            up = right.cross(forward);
+            forward.set(
+                    lookAtVector.x - posX,
+                    lookAtVector.y - posY,
+                    lookAtVector.z - posZ);
+
+            up.set(0f, 1f, 0f);
+            right.setToCrossProduct(up, forward);
+            up.setToCrossProduct(right, forward);
 
             forward.normalize();
             up.normalize();
             right.normalize();
 
-            transform = new Matrix(right, up, forward);
+            transform.setBasisVectors(right, up, forward);
             transform.data[0][3] = posX;
             transform.data[1][3] = posY;
             transform.data[2][3] = posZ;

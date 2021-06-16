@@ -6,7 +6,7 @@ package sj3d;
 final class Renderer {
 
     // Lighting
-    private Vector lightVector;
+    private final Vector lightVector;
     private float lightAmbient, lightIntensity;
 
     // Settings
@@ -19,6 +19,8 @@ final class Renderer {
     private final int[] pixels;
     private final float[] zbuf; // depth of object at each pixel
     private final Model[] modelbuf; // Models at each pixel point
+    private final Vector tmpVector = new Vector();
+    private final Matrix projectionMatrix = new Matrix();
 
     Renderer(final int width, final int height, final int[] pixels,
             final float[] zbuf, final Model[] modelbuf,
@@ -50,17 +52,20 @@ final class Renderer {
     /**
      * Set the scene lighting.
      *
-     * @param direction
-     *            the direction to which the light will point. The direction
-     *            vector does not need to be normalized.
+     * @param x
+     *            the x-component of the light direction
+     * @param y
+     *            the y-component of the light direction
+     * @param z
+     *            the z-component of the light direction
      * @param intensity
      *            the intensity of the light
      * @param ambient
      *            the ambient intensity
      */
-    void setLighting(final Vector direction, final float intensity,
-            final float ambient) {
-        lightVector = direction;
+    void setLighting(final float x, final float y, final float z,
+                     final float intensity, final float ambient) {
+        lightVector.set(x, y, z);
         lightVector.normalize();
         lightIntensity = intensity;
         lightAmbient = ambient;
@@ -103,21 +108,23 @@ final class Renderer {
      * @param model  the model whose vertices should be projected
      */
     private void projectAllVertices(final Camera camera, final Model model) {
-        final Matrix m = camera.getMatrix().multiply(model.getMatrix());
+        projectionMatrix.resetToIdentity();
+        projectionMatrix.multiplySelf(camera.getMatrix());
+        projectionMatrix.multiplySelf(model.getMatrix());
 
         for (int i = 0, l = model.numVertices(); i < l; i++) {
 
-            final Vertex v0 = model.getVertex(i);
+            final Vertex v = model.getVertex(i);
 
             // Transform to camera coordinates
-            final Vertex v = m.multiply(v0);
+            projectionMatrix.multiply(v, tmpVector);
 
             // Calculate position on screen & depth from camera
             // This bit performs the transformation from orthographic to
             // perspective
-            v0.projZ = 1.0f / v.z;
-            v0.projX = v.x * fudgeScaling * v0.projZ + halfwidth;
-            v0.projY = v.y * fudgeScaling * v0.projZ + halfheight;
+            v.projZ = 1.0f / tmpVector.z;
+            v.projX = tmpVector.x * fudgeScaling * v.projZ + halfwidth;
+            v.projY = tmpVector.y * fudgeScaling * v.projZ + halfheight;
 
         }
 

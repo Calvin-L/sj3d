@@ -4,7 +4,7 @@ public final class Triangle {
 
     private final int vertAindex, vertBindex, vertCindex;
     private final UVCoord uvA, uvB, uvC;
-    //private final Vector n;
+    private final Vector n = new Vector();
     private Model parent;
 
     public Triangle(Model p, int a, int b, int c, UVCoord uvA,
@@ -16,7 +16,7 @@ public final class Triangle {
         this.uvA = uvA;
         this.uvB = uvB;
         this.uvC = uvC;
-        //n = calculateNormal();
+        calculateNormal();
     }
 
     public Triangle(Model p, int a, int b, int c) {
@@ -25,7 +25,7 @@ public final class Triangle {
         vertCindex = c;
         parent = p;
         uvA = uvB = uvC = null;
-        //n = calculateNormal();
+        calculateNormal();
     }
 
     public void setParent(Model p) {
@@ -60,18 +60,15 @@ public final class Triangle {
         Vertex a = getVertexA();
         Vertex b = getVertexB();
         Vertex c = getVertexC();
-        Vector v = new Vector((a.getX() - b.getX()), (a.getY() - b.getY()), (a
-                .getZ() - b.getZ()));
-        Vector w = new Vector((a.getX() - c.getX()), (a.getY() - c.getY()), (a
-                .getZ() - c.getZ()));
-        Vector n = v.cross(w);
+        n.setToCrossProduct(
+                (a.getX() - b.getX()), (a.getY() - b.getY()), (a.getZ() - b.getZ()),
+                (a.getX() - c.getX()), (a.getY() - c.getY()), (a.getZ() - c.getZ()));
         n.normalize();
         return n;
     }
 
     public Vector getNormal() {
         return calculateNormal();
-        //return n;
     }
 
 }

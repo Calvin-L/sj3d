@@ -149,7 +149,7 @@ public final class World {
      *            the intensity of the ambient light (usually 1)
      */
     public void setLighting(float x, float y, float z, float intensity, float ambient) {
-        renderer.setLighting(new Vector(x, y, z), intensity, ambient);
+        renderer.setLighting(x, y, z, intensity, ambient);
     }
 
     /**

@@ -2,7 +2,7 @@ package sj3d;
 
 abstract class Object3D {
 
-    Matrix transform;
+    final Matrix transform;
 
     protected float rotX, rotY, rotZ, sclX, sclY, sclZ, posX, posY, posZ;
 
@@ -12,7 +12,7 @@ abstract class Object3D {
 
         rotX = rotY = rotZ = posX = posY = posZ = 0.0f;
         sclX = sclY = sclZ = 1.0f;
-        transform = Matrix.identity();
+        transform = new Matrix();
 
     }
 
@@ -21,9 +21,8 @@ abstract class Object3D {
         if (!rebuildFlag)
             return transform;
         rebuildFlag = false;
-        transform = new Matrix();
-        transform.multiplySelf(Matrix.rotationMatrix(rotX, rotY, rotZ)
-                .multiply(Matrix.scaleMatrix(sclX, sclY, sclZ)));
+        transform.setToRotationMatrix(rotX, rotY, rotZ);
+        transform.multiplySelfByScaleMatrix(sclX, sclY, sclZ);
         transform.data[0][3] = posX;
         transform.data[1][3] = posY;
         transform.data[2][3] = posZ;
