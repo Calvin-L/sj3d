@@ -86,7 +86,7 @@ for (mode, smooth, textured) in [("FLAT", False, False), ("SMOOTH", True, False)
                     write("        final {t} d{v}_{v1}{v2} = {e};".format(t=t, v1=vert1, v2=vert2, v=v, e="({v1}y == {v2}y) ? ({v2}{v}-{v1}{v}) : (({v1}{v}-{v2}{v}) / ({v1}y-{v2}y))".format(v1=vert1, v2=vert2, v=v)))
 
     write("        int y = Math.max(ay, 0);")
-    write("        final int relativeStartY = y - ay;")
+    write("        int relativeStartY = y - ay;")
     for toRight in [True, False]:
         if toRight:
             write("        if (dx_ab > dx_ac) { // case 1: point b is right of line a-c")
@@ -98,6 +98,8 @@ for (mode, smooth, textured) in [("FLAT", False, False), ("SMOOTH", True, False)
             (start_counter, end_counter) = ("ac".format(v=v), "{start}{end}".format(v=v, start=start, end=end))
             if not toRight:
                 (start_counter, end_counter) = (end_counter, start_counter)
+            if not top:
+                write("            relativeStartY = y - by;")
             for (t, v, _) in pv:
                 if v == "y":
                     continue
@@ -105,7 +107,7 @@ for (mode, smooth, textured) in [("FLAT", False, False), ("SMOOTH", True, False)
                     write("            {t} s{v} = a{v} + relativeStartY * d{v}_{start_counter};".format(t=t, v=v, start_counter=start_counter))
                     write("            {t} e{v} = a{v} + relativeStartY * d{v}_{end_counter};".format(t=t, v=v, end_counter=end_counter))
                 else:
-                    write("            {se}{v} = b{v};".format(v=v, se=("e" if toRight else "s")))
+                    write("            {se}{v} = b{v} + relativeStartY * d{v}_bc;".format(v=v, se=("e" if toRight else "s")))
             write("            for (; y < yend; ++y) {")
             for (t, v, _) in pv:
                 if v == "y" or v == "x":
