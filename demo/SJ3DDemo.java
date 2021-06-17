@@ -65,6 +65,55 @@ public class SJ3DDemo {
         return tex;
     }
 
+    /**
+     * Create a unit cube with corners (0, 0, 0) and (1, 1, 1).  The cube
+     * will not have UV coordinates, so it can't be used with a textured
+     * material.
+     *
+     * @return a new cube model
+     */
+    private static Model createCube() {
+        final Model m = new Model();
+
+        m.addFrame();
+
+        m.addVertex(0, 0, 0);
+        m.addVertex(0, 0, 1);
+        m.addVertex(0, 1, 0);
+        m.addVertex(0, 1, 1);
+        m.addVertex(1, 0, 0);
+        m.addVertex(1, 0, 1);
+        m.addVertex(1, 1, 0);
+        m.addVertex(1, 1, 1);
+
+        //  0------1
+        //  |\     |\
+        //  | 4----|-5
+        //  2------3 |
+        //   \|     \|
+        //    6------7
+
+        m.addTriangle(new Triangle(m, 0, 1, 2));
+        m.addTriangle(new Triangle(m, 1, 3, 2));
+
+        m.addTriangle(new Triangle(m, 3, 1, 5));
+        m.addTriangle(new Triangle(m, 5, 7, 3));
+
+        m.addTriangle(new Triangle(m, 2, 3, 7));
+        m.addTriangle(new Triangle(m, 7, 6, 2));
+
+        m.addTriangle(new Triangle(m, 5, 4, 6));
+        m.addTriangle(new Triangle(m, 5, 6, 7));
+
+        m.addTriangle(new Triangle(m, 0, 2, 6));
+        m.addTriangle(new Triangle(m, 6, 4, 0));
+
+        m.addTriangle(new Triangle(m, 1, 0, 4));
+        m.addTriangle(new Triangle(m, 4, 5, 1));
+
+        return m;
+    }
+
     private static Model createModel(Texture tex) {
         final Model m = new Model();
         m.material = Material.flatTextured(tex);
@@ -102,6 +151,26 @@ public class SJ3DDemo {
         final Camera camera = world.getCamera();
         final FPSCounter fpsCounter = new FPSCounter();
 
+        Model unitCube = createCube();
+        for (int i = 0; i < 3; ++i) {
+            Model cube = new Model(unitCube);
+            switch (i) {
+                case 0:
+                    cube.setScale(3.0f, 0.1f, 0.1f);
+                    cube.material = Material.flat(0xFF0000);
+                    break;
+                case 1:
+                    cube.setScale(0.1f, 3.0f, 0.1f);
+                    cube.material = Material.flat(0x00FF00);
+                    break;
+                case 2:
+                    cube.setScale(0.1f, 0.1f, 3.0f);
+                    cube.material = Material.flat(0x0000FF);
+                    break;
+            }
+            world.addModel(cube);
+        }
+
         final JPanel panel = new JPanel() {
             @Override
             public void paint(Graphics g) {
@@ -129,6 +198,8 @@ public class SJ3DDemo {
 
         long start = System.currentTimeMillis();
 
+        world.setLighting(1f, 1f, 1f, 1f, 1f);
+
         while (true) {
             long now = System.currentTimeMillis();
             int delta = (int)(now - start);
@@ -137,11 +208,16 @@ public class SJ3DDemo {
             float z = (float)Math.sin((float)delta / 1000f) * 3f;
 
             synchronized (world) { // avoid conflicts with the paint thread
-                world.setLighting(x, y, z, 1f, 0.3f);
-                camera.setPos(x, y, z);
+                camera.setPos(x * 3, 5, z * 3);
                 camera.lookAt(0, 0, 0);
+
+                model.setRotation(x, x, x);
+                model.setScale(y, y, y);
+                model.setPos(0, z, 0);
+
                 world.render();
             }
+
             fpsCounter.tick();
             panel.repaint();
             try {
